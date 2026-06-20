@@ -11,6 +11,8 @@ import FloatingTimer from './components/FloatingTimer'
 import OnboardingTour from './components/OnboardingTour'
 
 const Landing     = lazy(() => import('./pages/Landing'))
+const Terms       = lazy(() => import('./pages/Terms'))
+const NotFound    = lazy(() => import('./pages/NotFound'))
 const Dashboard   = lazy(() => import('./pages/Dashboard'))
 const Subjects    = lazy(() => import('./pages/Subjects'))
 const Cycle       = lazy(() => import('./pages/Cycle'))
@@ -95,6 +97,7 @@ function AppLayout() {
             <Route path="/preferences"element={<Preferences />} />
             <Route path="/profile"    element={<Profile />} />
             <Route path="/study-room" element={<StudyRoom />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
         </ErrorBoundary>
@@ -117,6 +120,8 @@ export default function App() {
             <Route path="/register"          element={<Register />} />
             <Route path="/forgot-password"   element={<ForgotPassword />} />
             <Route path="/reset-password"    element={<ResetPassword />} />
+            <Route path="/terms"             element={<Terms />} />
+            <Route path="/privacy"           element={<Terms />} />
             <Route path="/*" element={
               <ProtectedRoute>
                 <AppLayout />

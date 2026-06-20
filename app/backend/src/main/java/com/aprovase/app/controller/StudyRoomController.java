@@ -15,12 +15,15 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/study-room")
@@ -35,32 +38,56 @@ public class StudyRoomController {
     }
 
     @GetMapping
-    public StudyRoomStateDto getState(@AuthenticationPrincipal User user) {
-        return studyRoomService.getState();
+    public Map<String, Object> getInfo(@AuthenticationPrincipal User user) {
+        int suggested = studyRoomService.suggestRoom();
+        int current = studyRoomService.getUserRoom(user.getEmail());
+        int roomId = current > 0 ? current : suggested;
+        return Map.of(
+            "roomId", roomId,
+            "room", studyRoomService.getState(roomId),
+            "rooms", studyRoomService.getRoomList()
+        );
+    }
+
+    @GetMapping("/{roomId}")
+    public StudyRoomStateDto getRoom(@PathVariable int roomId, @AuthenticationPrincipal User user) {
+        return studyRoomService.getState(roomId);
+    }
+
+    @GetMapping("/rooms")
+    public List<Map<String, Object>> getRooms(@AuthenticationPrincipal User user) {
+        return studyRoomService.getRoomList();
     }
 
     @MessageMapping("/room.sit")
     public void sit(@Payload SitRequest request, Principal principal) {
         User user = extractUser(principal);
         if (user == null) return;
-        studyRoomService.sit(user, request.seatId(), request.subjectName(), request.status());
-        broadcast();
+        if (studyRoomService.sit(user, request.roomId(), request.seatId(), request.subjectName(), request.status())) {
+            broadcastRoom(request.roomId());
+            broadcastRoomList();
+        }
     }
 
     @MessageMapping("/room.update")
     public void update(@Payload UpdateSeatRequest request, Principal principal) {
         User user = extractUser(principal);
         if (user == null) return;
-        studyRoomService.updateSeat(user, request.subjectName(), request.status());
-        broadcast();
+        if (studyRoomService.updateSeat(user, request.subjectName(), request.status())) {
+            int roomId = studyRoomService.getUserRoom(user.getEmail());
+            if (roomId > 0) broadcastRoom(roomId);
+        }
     }
 
     @MessageMapping("/room.leave")
     public void leave(Principal principal) {
         User user = extractUser(principal);
         if (user == null) return;
-        studyRoomService.leave(user.getEmail());
-        broadcast();
+        int roomId = studyRoomService.leave(user.getEmail());
+        if (roomId > 0) {
+            broadcastRoom(roomId);
+            broadcastRoomList();
+        }
     }
 
     @MessageMapping("/room.chat")
@@ -68,10 +95,12 @@ public class StudyRoomController {
         User user = extractUser(principal);
         if (user == null || request == null || request.text() == null || request.text().isBlank()) return;
         String text = request.text().length() > 500 ? request.text().substring(0, 500) : request.text();
+        int roomId = studyRoomService.getUserRoom(user.getEmail());
+        if (roomId <= 0) return;
         ChatMessageDto msg = new ChatMessageDto(
                 user.getId(), user.getName(), null, text, Instant.now()
         );
-        messagingTemplate.convertAndSend("/topic/study-room/chat", msg);
+        messagingTemplate.convertAndSend("/topic/study-room/" + roomId + "/chat", msg);
     }
 
     @EventListener
@@ -81,12 +110,22 @@ public class StudyRoomController {
         if (principal == null) return;
         try {
             User user = extractUser(principal);
-            if (user != null && studyRoomService.leave(user.getEmail())) broadcast();
+            if (user != null) {
+                int roomId = studyRoomService.leave(user.getEmail());
+                if (roomId > 0) {
+                    broadcastRoom(roomId);
+                    broadcastRoomList();
+                }
+            }
         } catch (Exception ignored) {}
     }
 
-    private void broadcast() {
-        messagingTemplate.convertAndSend("/topic/study-room", studyRoomService.getState());
+    private void broadcastRoom(int roomId) {
+        messagingTemplate.convertAndSend("/topic/study-room/" + roomId, studyRoomService.getState(roomId));
+    }
+
+    private void broadcastRoomList() {
+        messagingTemplate.convertAndSend("/topic/study-room/rooms", studyRoomService.getRoomList());
     }
 
     private User extractUser(Principal principal) {

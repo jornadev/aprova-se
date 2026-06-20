@@ -73,7 +73,15 @@ public class ExamPlanController {
         String name = (String) body.get("name");
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> subjects = (List<Map<String, Object>>) body.get("subjects");
+        if (subjects == null || subjects.isEmpty()) {
+            throw new IllegalArgumentException("Nenhuma disciplina encontrada no edital.");
+        }
         return service.bulkImport(name, subjects, user);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deletePlan(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        service.deletePlan(id, user);
     }
 
     @PutMapping("/{id}/name")

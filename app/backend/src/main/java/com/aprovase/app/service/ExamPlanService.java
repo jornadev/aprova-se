@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import jakarta.persistence.EntityManager;
 import java.io.InputStream;
 import java.util.*;
 
@@ -27,15 +28,18 @@ public class ExamPlanService {
     private final SubjectRepository subjectRepository;
     private final TopicRepository topicRepository;
     private final ObjectMapper objectMapper;
+    private final EntityManager entityManager;
 
     public ExamPlanService(ExamPlanRepository examPlanRepository,
                            SubjectRepository subjectRepository,
                            TopicRepository topicRepository,
-                           ObjectMapper objectMapper) {
+                           ObjectMapper objectMapper,
+                           EntityManager entityManager) {
         this.examPlanRepository = examPlanRepository;
         this.subjectRepository = subjectRepository;
         this.topicRepository = topicRepository;
         this.objectMapper = objectMapper;
+        this.entityManager = entityManager;
     }
 
     public List<Map<String, Object>> listAvailable(User user) {
@@ -89,6 +93,30 @@ public class ExamPlanService {
         }
 
         return result;
+    }
+
+    public void deletePlan(Long id, User user) {
+        List<Subject> subjects = subjectRepository.findByUserAndExamPlanIdOrderByNameAsc(user, id);
+        if (subjects.isEmpty()) return;
+        List<Long> subjectIds = subjects.stream().map(Subject::getId).toList();
+
+        entityManager.createNativeQuery("DELETE FROM revisions WHERE subject_id IN (:ids)")
+                .setParameter("ids", subjectIds).executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM weekly_plans WHERE subject_id IN (:ids)")
+                .setParameter("ids", subjectIds).executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM simulation_results WHERE subject_id IN (:ids)")
+                .setParameter("ids", subjectIds).executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM study_sessions WHERE subject_id IN (:ids)")
+                .setParameter("ids", subjectIds).executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM topics WHERE subject_id IN (:ids)")
+                .setParameter("ids", subjectIds).executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM subjects WHERE id IN (:ids)")
+                .setParameter("ids", subjectIds).executeUpdate();
+
+        try {
+            examPlanRepository.deleteById(id);
+        } catch (Exception ignored) {
+        }
     }
 
     public ExamPlan createCustomPlan(String name, User user) {
@@ -205,15 +233,19 @@ public class ExamPlanService {
 
         ExamPlan plan = new ExamPlan();
         plan.setSlug("custom-" + java.util.UUID.randomUUID().toString().substring(0, 8));
-        plan.setName(name != null && !name.isBlank() ? name : "Edital personalizado");
+        String planName = name != null && !name.isBlank() ? name.trim() : "Edital personalizado";
+        if (planName.length() > 250) planName = planName.substring(0, 250);
+        plan.setName(planName);
         plan.setOrganization("");
         plan.setYear(0);
         final ExamPlan savedPlan = examPlanRepository.save(plan);
 
         int colorIdx = 0;
         for (Map<String, Object> subjectData : subjectsData) {
-            String subjectName = (String) subjectData.get("name");
-            if (subjectName == null || subjectName.isBlank()) continue;
+            Object nameObj = subjectData.get("name");
+            String subjectName = nameObj != null ? nameObj.toString().trim() : "";
+            if (subjectName.isBlank()) continue;
+            if (subjectName.length() > 250) subjectName = subjectName.substring(0, 250);
 
             String color = (String) subjectData.get("color");
             if (color == null || color.isBlank()) {
@@ -230,14 +262,15 @@ public class ExamPlanService {
             subject.setUser(user);
             Subject savedSubject = subjectRepository.save(subject);
 
-            @SuppressWarnings("unchecked")
-            List<String> topicTitles = (List<String>) subjectData.get("topics");
-            if (topicTitles != null) {
-                for (String title : topicTitles) {
-                    if (title == null || title.isBlank()) continue;
+            Object topicsRaw = subjectData.get("topics");
+            if (topicsRaw instanceof List<?> topicList) {
+                for (Object item : topicList) {
+                    String title = item != null ? item.toString().trim() : "";
+                    if (title.isBlank()) continue;
+                    if (title.length() > 255) title = title.substring(0, 255);
                     Topic topic = new Topic();
                     topic.setSubject(savedSubject);
-                    topic.setTitle(title.trim());
+                    topic.setTitle(title);
                     topic.setStatus(Topic.TopicStatus.NOT_STUDIED);
                     topicRepository.save(topic);
                 }

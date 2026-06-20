@@ -32,7 +32,7 @@ export default function Login() {
       await login(form.email, form.password)
       navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.message || 'Email ou senha inválidos.')
+      setError(err.response?.data?.error || err.response?.data?.message || 'Email ou senha inválidos.')
     } finally {
       setLoading(false)
     }

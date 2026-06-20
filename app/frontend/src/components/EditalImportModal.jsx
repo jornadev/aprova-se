@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { examPlanApi } from '../services/api'
+import { examPlanApi, editalParserApi } from '../services/api'
 import { useToast } from '../context/ToastContext'
 
 const PALETTE = ['#7c3aed', '#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#f97316']
@@ -164,12 +164,18 @@ function DisciplineCard({ disc, index, onChange, onDelete }) {
 
 export default function EditalImportModal({ open, onClose, onImported }) {
   const toast = useToast()
+  const [step, setStep] = useState('choose') // 'choose' | 'paste' | 'edit'
+  const [pasteText, setPasteText] = useState('')
+  const [parsing, setParsing] = useState(false)
   const [planName, setPlanName] = useState('')
   const [discs, setDiscs] = useState([{ name: '', color: PALETTE[0], text: '', _focusName: true }])
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (open) {
+      setStep('choose')
+      setPasteText('')
+      setParsing(false)
       setPlanName('')
       setDiscs([{ name: '', color: PALETTE[0], text: '', _focusName: true }])
       setSaving(false)
@@ -177,6 +183,31 @@ export default function EditalImportModal({ open, onClose, onImported }) {
   }, [open])
 
   if (!open) return null
+
+  const handleAIParse = async () => {
+    if (!pasteText.trim() || parsing) return
+    setParsing(true)
+    try {
+      const result = await editalParserApi.parse(pasteText)
+      if (!result || result.length === 0) {
+        toast.error('Não foi possível identificar disciplinas no texto.')
+        setParsing(false)
+        return
+      }
+      setDiscs(result.map((d, i) => ({
+        name: d.name,
+        color: PALETTE[i % PALETTE.length],
+        text: d.topics.join('\n'),
+        _focusName: false,
+      })))
+      setStep('edit')
+      toast.success(`${result.length} disciplina${result.length > 1 ? 's' : ''} identificada${result.length > 1 ? 's' : ''}!`)
+    } catch {
+      toast.error('Erro ao processar o texto. Tente novamente ou use o modo manual.')
+    } finally {
+      setParsing(false)
+    }
+  }
 
   const addDisc = () => {
     setDiscs(prev => [...prev, {
@@ -207,15 +238,129 @@ export default function EditalImportModal({ open, onClose, onImported }) {
         })),
       }
       const result = await examPlanApi.bulkImport(payload)
-      onImported(result)
+      await onImported(result)
       onClose()
       toast.success('Edital criado com sucesso!')
-    } catch {
-      toast.error('Erro ao criar edital. Verifique os dados e tente novamente.')
+    } catch (err) {
+      console.error('Bulk import error:', err.response?.data || err.message || err)
+      toast.error(err.response?.data?.error || 'Erro ao criar edital. Verifique os dados e tente novamente.')
       setSaving(false)
     }
   }
 
+  // ── Step: choose ──
+  if (step === 'choose') {
+    return (
+      <ModalShell onClose={onClose}>
+        <div style={{ padding: '24px 22px 20px', borderBottom: '1px solid var(--bdr)' }}>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text)', margin: 0 }}>Criar edital</h2>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-3)', margin: '2px 0 0' }}>Como você quer adicionar seu edital?</p>
+        </div>
+        <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <button onClick={() => setStep('paste')}
+            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px', borderRadius: 14, background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.15)', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s', width: '100%' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.1)'; e.currentTarget.style.borderColor = 'rgba(124,58,237,0.28)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,58,237,0.06)'; e.currentTarget.style.borderColor = 'rgba(124,58,237,0.15)' }}>
+            <div style={{ width: 42, height: 42, borderRadius: 12, background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#a78bfa' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" style={{ width: 22, height: 22 }}><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V14h-4v-1.5A4 4 0 0 1 8 9a4 4 0 0 1 4-4z"/><rect x="9" y="14" width="6" height="3" rx="1"/><path d="M10 17v2M14 17v2"/></svg>
+            </div>
+            <div>
+              <p style={{ color: 'var(--text)', fontSize: '0.9rem', fontWeight: 700, margin: 0 }}>Importar com IA</p>
+              <p style={{ color: 'var(--text-mut)', fontSize: '0.78rem', margin: '3px 0 0' }}>Cole o texto do edital e a IA separa disciplinas e tópicos automaticamente</p>
+            </div>
+          </button>
+          <button onClick={() => { setStep('edit'); setDiscs([{ name: '', color: PALETTE[0], text: '', _focusName: true }]) }}
+            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px', borderRadius: 14, background: 'rgba(255,255,255,0.02)', border: '1px solid var(--bdr-md)', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s', width: '100%' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'var(--text-mut)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'var(--bdr-md)' }}>
+            <div style={{ width: 42, height: 42, borderRadius: 12, background: 'var(--bg-elev)', border: '1px solid var(--bdr-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--text-3)' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" style={{ width: 22, height: 22 }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+            <div>
+              <p style={{ color: 'var(--text)', fontSize: '0.9rem', fontWeight: 700, margin: 0 }}>Criar manualmente</p>
+              <p style={{ color: 'var(--text-mut)', fontSize: '0.78rem', margin: '3px 0 0' }}>Adicione disciplinas e tópicos um por um</p>
+            </div>
+          </button>
+        </div>
+        <div style={{ padding: '0 22px 18px' }}>
+          <button onClick={onClose} style={{ width: '100%', padding: '10px 0', borderRadius: '0.5rem', fontSize: '0.85rem', background: 'none', border: '1px solid var(--bdr)', color: 'var(--text-mut)', cursor: 'pointer' }}>Cancelar</button>
+        </div>
+      </ModalShell>
+    )
+  }
+
+  // ── Step: paste ──
+  if (step === 'paste') {
+    return (
+      <ModalShell onClose={onClose}>
+        <div style={{ padding: '18px 22px 14px', borderBottom: '1px solid var(--bdr)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button onClick={() => setStep('choose')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-mut)', padding: '2px', display: 'flex' }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" style={{ width: 16, height: 16 }}><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text)', margin: 0 }}>Importar com IA</h2>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-3)', margin: '2px 0 0' }}>Cole o conteúdo programático do edital</p>
+          </div>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 22px' }}>
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ color: 'var(--text-3)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', display: 'block', marginBottom: 6 }}>NOME DO EDITAL</label>
+            <input
+              type="text"
+              value={planName}
+              onChange={e => setPlanName(e.target.value)}
+              placeholder="Ex: Policial Penal RS 2026"
+              style={{
+                width: '100%', padding: '10px 12px', fontSize: '0.875rem',
+                background: 'var(--bg-input)', border: '1px solid var(--bdr)',
+                borderRadius: '0.5rem', color: 'var(--text)', outline: 'none',
+                boxSizing: 'border-box',
+              }}
+              onFocus={e => e.target.style.borderColor = '#7c3aed'}
+              onBlur={e => e.target.style.borderColor = 'var(--bdr)'}
+            />
+          </div>
+          <label style={{ color: 'var(--text-3)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', display: 'block', marginBottom: 6 }}>CONTEÚDO PROGRAMÁTICO</label>
+          <textarea
+            value={pasteText}
+            onChange={e => setPasteText(e.target.value)}
+            placeholder={'Cole aqui o conteúdo programático do edital...\n\nExemplo:\n\nLÍNGUA PORTUGUESA\n1. Compreensão e interpretação de textos;\n2. Ortografia oficial;\n3. Acentuação gráfica;\n\nRACIOCÍNIO LÓGICO\n1. Proposições e conectivos;\n2. Tabelas-verdade;'}
+            style={{
+              width: '100%', minHeight: 280, resize: 'vertical',
+              fontFamily: 'monospace', fontSize: '0.8rem', lineHeight: 1.7,
+              background: 'var(--bg-input)', border: '1px solid var(--bdr)',
+              borderRadius: '0.5rem', padding: '12px 14px',
+              color: 'var(--text-2)', outline: 'none', boxSizing: 'border-box',
+            }}
+            onFocus={e => e.target.style.borderColor = '#7c3aed'}
+            onBlur={e => e.target.style.borderColor = 'var(--bdr)'}
+          />
+        </div>
+        <div style={{ padding: '14px 22px', borderTop: '1px solid var(--bdr)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+          <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: '0.5rem', fontSize: '0.85rem', background: 'none', border: '1px solid var(--bdr-md)', color: 'var(--text-3)', cursor: 'pointer' }}>Cancelar</button>
+          <button
+            onClick={handleAIParse}
+            disabled={!pasteText.trim() || parsing}
+            style={{
+              padding: '8px 20px', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600,
+              background: pasteText.trim() && !parsing ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' : 'var(--bg-elev)',
+              color: pasteText.trim() && !parsing ? 'white' : 'var(--text-mut)',
+              border: 'none', cursor: pasteText.trim() && !parsing ? 'pointer' : 'not-allowed',
+              display: 'flex', alignItems: 'center', gap: 8,
+            }}>
+            {parsing ? (
+              <>
+                <svg className="animate-spin" style={{ width: 14, height: 14 }} viewBox="0 0 24 24" fill="none"><circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
+                Analisando...
+              </>
+            ) : 'Importar com IA'}
+          </button>
+        </div>
+      </ModalShell>
+    )
+  }
+
+  // ── Step: edit ──
   return (
     <ModalShell onClose={onClose}>
       {/* Header */}

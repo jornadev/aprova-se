@@ -657,31 +657,27 @@ function PricingCard() {
   ]
   return (
     <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(124,58,237,0.25)', background: 'rgba(124,58,237,0.04)', position: 'relative' }}>
-      {/* Popular badge */}
+      {/* Badge */}
       <div style={{ position: 'absolute', top: -1, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', borderRadius: '0 0 10px 10px', padding: '4px 20px' }}>
-        <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'white', letterSpacing: '.06em', textTransform: 'uppercase' }}>Trial grátis · Sem cartão</span>
+        <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'white', letterSpacing: '.06em', textTransform: 'uppercase' }}>Acesso gratuito</span>
       </div>
 
       <div className="p-8 pt-10">
-        {/* Trial badge */}
+        {/* Free badge */}
         <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-5" style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}>
           <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#22c55e', animation: 'dot-blink 1.5s ease-in-out infinite' }} />
-          <span style={{ fontSize: '0.72rem', color: '#86efac', fontWeight: 600 }}>7 dias grátis para experimentar</span>
+          <span style={{ fontSize: '0.72rem', color: '#86efac', fontWeight: 600 }}>Crie sua conta e comece agora</span>
         </div>
 
         {/* Price */}
         <div className="flex items-end gap-2 mb-1">
           <div>
-            <span style={{ fontSize: '0.8rem', color: '#475569', display: 'block', marginBottom: 2 }}>Depois do trial</span>
             <div className="flex items-baseline gap-1">
-              <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#64748b' }}>R$</span>
-              <span style={{ fontSize: '3.2rem', fontWeight: 900, color: 'white', lineHeight: 1, letterSpacing: '-2px' }}>16</span>
-              <span style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white', lineHeight: 1 }}>,90</span>
-              <span style={{ fontSize: '0.85rem', color: '#475569', marginLeft: 2 }}>/mês</span>
+              <span style={{ fontSize: '3.2rem', fontWeight: 900, color: 'white', lineHeight: 1, letterSpacing: '-2px' }}>Grátis</span>
             </div>
           </div>
         </div>
-        <p style={{ fontSize: '0.78rem', color: '#334155', marginBottom: 24 }}>Cancele quando quiser, sem multa.</p>
+        <p style={{ fontSize: '0.78rem', color: '#334155', marginBottom: 24 }}>Sem cartão, sem compromisso.</p>
 
         {/* Features */}
         <div className="space-y-2.5 mb-7">
@@ -698,11 +694,11 @@ function PricingCard() {
 
         <Link to="/register"
           className="flex items-center justify-center gap-2 w-full font-bold py-3.5 rounded-xl text-sm text-white"
-          style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', boxShadow: '0 4px 24px rgba(124,58,237,0.4)', textDecoration: 'none', animation: 'glow-pulse 3s ease-in-out infinite' }}>
-          Testar 7 dias grátis <ArrowRight />
+          style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', boxShadow: '0 4px 24px rgba(124,58,237,0.25)', textDecoration: 'none' }}>
+          Criar conta grátis <ArrowRight />
         </Link>
         <p className="text-center mt-3" style={{ fontSize: '0.72rem', color: '#1e3a5f' }}>
-          Sem cartão de crédito · Cancele quando quiser
+          Sem cartão de crédito · Acesso completo
         </p>
       </div>
     </div>
@@ -728,7 +724,7 @@ export default function Landing() {
               <span className="text-white">aprova</span><span style={{ color: '#7c3aed' }}>.se</span>
             </span>
             <nav className="hidden md:flex items-center gap-6">
-              {[['Funcionalidades','#features'],['Como funciona','#how'],['Preços','#pricing']].map(([l, h]) => (
+              {[['Funcionalidades','#features'],['Como funciona','#how'],['O que inclui','#pricing']].map(([l, h]) => (
                 <a key={l} href={h} style={{ fontSize: '0.875rem', color: '#475569', textDecoration: 'none', transition: 'color .2s' }}
                   onMouseEnter={e => e.currentTarget.style.color='#94a3b8'}
                   onMouseLeave={e => e.currentTarget.style.color='#475569'}>
@@ -743,8 +739,8 @@ export default function Landing() {
                 Entrar
               </Link>
               <Link to="/register" className="flex items-center gap-1.5 font-semibold text-white text-sm px-4 py-2 rounded-lg"
-                style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', animation: 'glow-pulse 3s ease-in-out infinite', textDecoration: 'none' }}>
-                Testar grátis
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', textDecoration: 'none' }}>
+                Criar conta
               </Link>
             </div>
           </div>
@@ -793,18 +789,18 @@ export default function Landing() {
                   <div className="flex flex-col sm:flex-row items-start gap-3">
                     <Link to="/register"
                       className="flex items-center gap-2 font-bold px-7 py-3.5 rounded-xl text-sm text-white"
-                      style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', boxShadow: '0 4px 28px rgba(124,58,237,0.42)', textDecoration: 'none', animation: 'glow-pulse 3s ease-in-out infinite' }}>
-                      Testar 7 dias grátis <ArrowRight />
+                      style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', boxShadow: '0 4px 28px rgba(124,58,237,0.25)', textDecoration: 'none' }}>
+                      Criar conta grátis <ArrowRight />
                     </Link>
                     <Link to="/login"
                       className="flex items-center gap-2 py-3.5 text-sm"
-                      style={{ color: '#334155', textDecoration: 'none', transition: 'color .2s' }}
-                      onMouseEnter={e => e.currentTarget.style.color = '#64748b'}
-                      onMouseLeave={e => e.currentTarget.style.color = '#334155'}>
+                      style={{ color: '#475569', textDecoration: 'none', transition: 'color .2s' }}
+                      onMouseEnter={e => e.currentTarget.style.color = '#94a3b8'}
+                      onMouseLeave={e => e.currentTarget.style.color = '#475569'}>
                       Já tenho conta →
                     </Link>
                   </div>
-                  <p style={{ fontSize: '0.75rem', color: '#1e293b', marginTop: 8 }}>7 dias grátis · depois R$16,90/mês · sem cartão de crédito</p>
+                  <p style={{ fontSize: '0.75rem', color: '#334155', marginTop: 8 }}>Grátis · sem cartão de crédito · acesso completo</p>
                 </Reveal>
 
                 {/* Hero stats */}
@@ -813,7 +809,7 @@ export default function Landing() {
                     {[['6','ferramentas integradas'],['100%','foco em concursos'],['∞','sessões e tópicos']].map(([v,l]) => (
                       <div key={l}>
                         <div style={{ fontSize: 'clamp(1.5rem,3vw,2.2rem)', fontWeight: 900, color: '#a78bfa', lineHeight: 1 }}>{v}</div>
-                        <div style={{ fontSize: '0.7rem', color: '#1e293b', marginTop: 3, lineHeight: 1.4 }}>{l}</div>
+                        <div style={{ fontSize: '0.7rem', color: '#475569', marginTop: 3, lineHeight: 1.4 }}>{l}</div>
                       </div>
                     ))}
                   </div>
@@ -874,7 +870,7 @@ export default function Landing() {
               <StatNumber value="6"    suffix="+"  label="funcionalidades integradas" />
               <StatNumber value="100"  suffix="%"  label="focado em concursos públicos" />
               <StatNumber value="∞"    suffix=""   label="sessões e tópicos sem limite" />
-              <StatNumber value="7"    suffix=" dias" label="de trial grátis para testar" />
+              <StatNumber value="0"    suffix=""       label="custo para começar" />
             </div>
           </div>
         </section>
@@ -891,7 +887,7 @@ export default function Landing() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 relative">
               {/* Connector line */}
               <div className="absolute top-8 left-1/4 right-1/4 h-px hidden md:block" style={{ background: 'linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent)' }} />
-              <HowStep n="1" Icon={IcoUserPlus} delay={0}   title="Teste 7 dias grátis"  desc="Sem cartão de crédito. Em menos de 1 minuto você já tem acesso completo. Depois R$16,90/mês — cancele quando quiser." />
+              <HowStep n="1" Icon={IcoUserPlus} delay={0}   title="Crie sua conta"  desc="Sem cartão de crédito. Em menos de 1 minuto você já tem acesso completo e gratuito a todas as funcionalidades." />
               <HowStep n="2" Icon={IcoUpload}   delay={120} title="Importe seu edital"   desc="Adicione as disciplinas e tópicos do seu concurso. O sistema organiza tudo e você já começa a marcar o progresso." />
               <HowStep n="3" Icon={IcoTarget}   delay={240} title="Estude com método"    desc="Use o cronômetro, complete revisões, siga o plano semanal e acompanhe sua evolução em tempo real." />
             </div>
@@ -903,7 +899,7 @@ export default function Landing() {
           <div className="max-w-5xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <Reveal>
-                <p style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '.12em', color: '#7c3aed', textTransform: 'uppercase', marginBottom: 12 }}>O que você leva</p>
+                <p style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '.12em', color: '#7c3aed', textTransform: 'uppercase', marginBottom: 12 }}>Tudo incluso</p>
                 <h2 style={{ fontSize: 'clamp(1.6rem,2.8vw,2.4rem)', fontWeight: 800, color: 'white', margin: '0 0 24px', lineHeight: 1.2 }}>
                   Tudo que um concurseiro sério precisa
                 </h2>
@@ -957,10 +953,10 @@ export default function Landing() {
               </p>
               <Link to="/register"
                 className="inline-flex items-center gap-2 font-bold px-10 py-4 rounded-xl text-base text-white"
-                style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', boxShadow: '0 4px 40px rgba(124,58,237,0.5)', textDecoration: 'none', animation: 'glow-pulse 3s ease-in-out infinite' }}>
-                Testar 7 dias grátis <ArrowRight />
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', boxShadow: '0 4px 40px rgba(124,58,237,0.25)', textDecoration: 'none' }}>
+                Criar conta grátis <ArrowRight />
               </Link>
-              <p style={{ fontSize: '0.8rem', color: '#1e293b', marginTop: 14 }}>7 dias grátis · R$16,90/mês depois · Cancele quando quiser</p>
+              <p style={{ fontSize: '0.8rem', color: '#334155', marginTop: 14 }}>Grátis · sem cartão · acesso completo</p>
             </Reveal>
           </div>
         </section>
@@ -968,19 +964,24 @@ export default function Landing() {
         {/* ── Footer ── */}
         <footer style={{ background: '#04070d', borderTop: '1px solid rgba(255,255,255,0.04)', padding: '24px 0' }}>
           <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <span style={{ fontWeight: 900, color: '#0f172a' }}>
-              aprova<span style={{ color: 'rgba(124,58,237,0.35)' }}>.se</span>
+            <span style={{ fontWeight: 900, color: '#334155' }}>
+              aprova<span style={{ color: 'rgba(124,58,237,0.5)' }}>.se</span>
             </span>
             <div className="flex items-center gap-6">
-              {['Privacidade','Termos','Contato'].map(l => (
-                <a key={l} href="#" style={{ fontSize: '0.8rem', color: '#0f172a', textDecoration: 'none', transition: 'color .2s' }}
-                  onMouseEnter={e => e.currentTarget.style.color='#1e293b'}
-                  onMouseLeave={e => e.currentTarget.style.color='#0f172a'}>
+              {[['Privacidade','/privacy'],['Termos','/terms']].map(([l, href]) => (
+                <Link key={l} to={href} style={{ fontSize: '0.8rem', color: '#475569', textDecoration: 'none', transition: 'color .2s' }}
+                  onMouseEnter={e => e.currentTarget.style.color='#94a3b8'}
+                  onMouseLeave={e => e.currentTarget.style.color='#475569'}>
                   {l}
-                </a>
+                </Link>
               ))}
+              <a href="mailto:suporte@aprova.se" style={{ fontSize: '0.8rem', color: '#475569', textDecoration: 'none', transition: 'color .2s' }}
+                onMouseEnter={e => e.currentTarget.style.color='#94a3b8'}
+                onMouseLeave={e => e.currentTarget.style.color='#475569'}>
+                Contato
+              </a>
             </div>
-            <p style={{ fontSize: '0.75rem', color: '#0f172a' }}>© 2026 aprova.se</p>
+            <p style={{ fontSize: '0.75rem', color: '#475569' }}>© 2026 aprova.se</p>
           </div>
         </footer>
       </div>

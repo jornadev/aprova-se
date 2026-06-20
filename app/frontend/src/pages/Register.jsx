@@ -135,7 +135,7 @@ function TermsModal({ onClose }) {
           </Section>
 
           <Section title="8. Limitação de Responsabilidade">
-            A plataforma é fornecida "no estado em que se encontra". A Aprova.se não garante disponibilidade ininterrupta e não se responsabiliza por perdas de dados causadas por falhas técnicas, ataques externos ou fatores fora de seu controle razoável. Em nenhuma hipótese a responsabilidade total perante o usuário excederá os valores efetivamente pagos pelo plano ativo nos últimos 3 meses.
+            A plataforma é fornecida "no estado em que se encontra". A Aprova.se não garante disponibilidade ininterrupta e não se responsabiliza por perdas de dados causadas por falhas técnicas, ataques externos ou fatores fora de seu controle razoável.
           </Section>
 
           <Section title="9. Alterações nos Termos">
@@ -204,7 +204,7 @@ export default function Register() {
       await register(form.name, form.email, form.password, termsAccepted)
       navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.message || 'Erro ao criar conta. Tente novamente.')
+      setError(err.response?.data?.error || err.response?.data?.message || 'Erro ao criar conta. Tente novamente.')
     } finally {
       setLoading(false)
     }

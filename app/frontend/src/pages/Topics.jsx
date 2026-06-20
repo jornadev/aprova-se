@@ -529,37 +529,40 @@ function CreateFromScratch({ onCreate, onCancel }) {
 export default function Topics() {
   const toast = useToast()
   const [available, setAvailable] = useState([])
-  const [selectedPlan, setSelectedPlan] = useState(null)
+  const [expandedPlanId, setExpandedPlanId] = useState(null)
   const [subjects, setSubjects] = useState([])
   const [progress, setProgress] = useState(null)
-  const [importing, setImporting] = useState(null)
-  const [syncing, setSyncing] = useState(null)
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState('ALL')
   const [editMode, setEditMode] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
-  const [showCreateInline, setShowCreateInline] = useState(false)
 
-  useEffect(() => {
-    loadAvailable()
-  }, [])
+  useEffect(() => { loadAvailable() }, [])
 
   const loadAvailable = async () => {
     try {
       const list = await examPlanApi.listAvailable()
-      setAvailable(list)
-      const imported = list.find(p => p.imported)
-      if (imported) loadPlan(imported)
+      setAvailable(list.filter(p => p.imported))
     } catch {
-      toast.error('Erro ao carregar editais disponíveis.')
+      toast.error('Erro ao carregar editais.')
     }
   }
 
-  const loadPlan = async (plan) => {
+  const togglePlan = async (plan) => {
+    if (expandedPlanId === plan.id) {
+      setExpandedPlanId(null)
+      setSubjects([])
+      setProgress(null)
+      setEditMode(false)
+      return
+    }
     if (!plan.id) return
     setLoading(true)
-    setSelectedPlan(plan)
+    setExpandedPlanId(plan.id)
+    setEditMode(false)
+    setSearch('')
+    setFilterStatus('ALL')
     try {
       const [subs, prog] = await Promise.all([
         examPlanApi.getSubjects(plan.id),
@@ -575,56 +578,51 @@ export default function Topics() {
   }
 
   const reload = () => {
-    if (selectedPlan) loadPlan(selectedPlan)
+    const plan = available.find(p => p.id === expandedPlanId)
+    if (plan) togglePlan(plan).then(() => togglePlan(plan))
   }
 
-  const handleImport = async (plan) => {
-    setImporting(plan.slug)
+  const reloadPlan = async () => {
+    const plan = available.find(p => p.id === expandedPlanId)
+    if (!plan) return
     try {
-      await examPlanApi.import(plan.slug)
-      const list = await examPlanApi.listAvailable()
-      setAvailable(list)
-      const imported = list.find(p => p.slug === plan.slug)
-      if (imported) await loadPlan(imported)
-      toast.success('Edital importado com sucesso!')
-    } catch {
-      toast.error('Erro ao importar edital. Tente novamente.')
-    } finally {
-      setImporting(null)
-    }
+      const [subs, prog] = await Promise.all([
+        examPlanApi.getSubjects(plan.id),
+        examPlanApi.getProgress(plan.id),
+      ])
+      setSubjects(subs)
+      setProgress(prog)
+    } catch {}
   }
 
-  const handleSync = async (plan) => {
-    setSyncing(plan.slug)
+  const handleDeletePlan = async (plan) => {
+    if (!confirm(`Apagar o edital "${plan.name}" e todas as suas disciplinas e tópicos? Essa ação não pode ser desfeita.`)) return
     try {
-      await examPlanApi.import(plan.slug)
-      await loadPlan(plan)
-      toast.success('Edital sincronizado!')
+      await examPlanApi.deletePlan(plan.id)
+      if (expandedPlanId === plan.id) {
+        setExpandedPlanId(null)
+        setSubjects([])
+        setProgress(null)
+        setEditMode(false)
+      }
+      await loadAvailable()
+      toast.success('Edital apagado com sucesso!')
     } catch {
-      toast.error('Erro ao sincronizar edital.')
-    } finally {
-      setSyncing(null)
-    }
-  }
-
-  const handleCreateCustom = async (name) => {
-    try {
-      const newPlan = await examPlanApi.createCustom(name)
-      const list = await examPlanApi.listAvailable()
-      setAvailable([...list, { ...newPlan, imported: true, custom: true }])
-      await loadPlan(newPlan)
-      setEditMode(true)
-    } catch {
-      toast.error('Erro ao criar edital personalizado.')
+      toast.error('Erro ao apagar edital.')
     }
   }
 
   const handleBulkImported = async (newPlan) => {
-    const list = await examPlanApi.listAvailable()
-    // The new plan may or may not appear yet (depends on whether subjects were created)
-    const inList = list.find(p => p.id === newPlan.id)
-    setAvailable(inList ? list : [...list, { ...newPlan, imported: true, custom: true }])
-    await loadPlan(newPlan)
+    await loadAvailable()
+    setExpandedPlanId(newPlan.id)
+    try {
+      const [subs, prog] = await Promise.all([
+        examPlanApi.getSubjects(newPlan.id),
+        examPlanApi.getProgress(newPlan.id),
+      ])
+      setSubjects(subs)
+      setProgress(prog)
+    } catch {}
     setEditMode(false)
   }
 
@@ -646,13 +644,14 @@ export default function Topics() {
     }))
     try {
       await topicApi.update(topicId, { status: newStatus })
-      if (selectedPlan?.id) examPlanApi.getProgress(selectedPlan.id).then(setProgress).catch(() => {})
+      if (expandedPlanId) examPlanApi.getProgress(expandedPlanId).then(setProgress).catch(() => {})
     } catch {
       setSubjects(snapshot)
       toast.error('Erro ao atualizar tópico.')
     }
   }
 
+  const selectedPlan = available.find(p => p.id === expandedPlanId) || null
   const isFiltering = !editMode && (search.trim() || filterStatus !== 'ALL')
 
   const filteredSubjects = subjects.map(s => ({
@@ -675,253 +674,144 @@ export default function Topics() {
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>Edital Verticalizado</h1>
           <p className="text-sm mt-0.5" style={{ color: 'var(--text-3)' }}>Acompanhe cada tópico do seu concurso</p>
         </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          {available.map(plan => (
-            plan.imported ? (
-              <div key={plan.slug ?? plan.id} className="flex items-center gap-1">
-                <button
-                  onClick={() => { loadPlan(plan); setEditMode(false) }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                    selectedPlan?.id === plan.id
-                      ? 'bg-violet-600/20 border-violet-500 text-violet-400'
-                      : ''
-                  }`}
-                  style={selectedPlan?.id !== plan.id ? { border: '1px solid var(--bdr-md)', color: 'var(--text-3)' } : undefined}
-                >
-                  <span className="w-2 h-2 rounded-full bg-green-400" />
-                  {plan.name}
-                </button>
-                {/* Sync button — only for non-custom plans */}
-                {!plan.custom && (
-                  <button
-                    onClick={() => handleSync(plan)}
-                    disabled={syncing === plan.slug}
-                    title="Sincronizar tópicos com o JSON"
-                    className="px-2 py-2 rounded-lg text-xs transition-colors disabled:opacity-40"
-                    style={{ border: '1px solid var(--bdr-md)', color: 'var(--text-mut)' }}
-                  >
-                    {syncing === plan.slug ? '...' : '↻'}
-                  </button>
-                )}
-              </div>
-            ) : (
-              <button
-                key={plan.slug}
-                onClick={() => handleImport(plan)}
-                disabled={importing === plan.slug}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed hover:border-violet-500 hover:text-violet-400 text-sm transition-colors disabled:opacity-50"
-                style={{ borderColor: 'var(--bdr-md)', color: 'var(--text-mut)' }}
-              >
-                {importing === plan.slug ? 'Importando...' : `+ Importar ${plan.name}`}
-              </button>
-            )
-          ))}
-
-          {/* Import edital primary button */}
-          <button
-            onClick={() => setImportModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)' }}
-          >
-            + Importar edital
-          </button>
-
-          {/* "Criar do zero" secondary option */}
-          {!showCreateInline ? (
-            <button
-              onClick={() => setShowCreateInline(true)}
-              className="text-sm transition-colors hover:text-violet-400"
-              style={{ color: 'var(--text-mut)', background: 'none', border: 'none', cursor: 'pointer', padding: '8px 4px' }}
-            >
-              Criar do zero
-            </button>
-          ) : (
-            <CreateFromScratch
-              onCreate={async (name) => {
-                await handleCreateCustom(name)
-                setShowCreateInline(false)
-              }}
-              onCancel={() => setShowCreateInline(false)}
-            />
-          )}
-
-          {/* Edit mode toggle */}
-          {selectedPlan && (
-            editMode ? (
-              <button
-                onClick={() => setEditMode(false)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><path d="M20 6L9 17l-5-5"/></svg> Concluído
-              </button>
-            ) : (
-              <button
-                onClick={() => setEditMode(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                style={{ border: '1px solid var(--bdr-md)', color: 'var(--text-3)' }}
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar edital
-              </button>
-            )
-          )}
-        </div>
+        <button
+          onClick={() => setImportModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)' }}
+        >
+          + Criar edital
+        </button>
       </div>
 
-      {/* ── Edit mode banner ── */}
-      {editMode && (
-        <div
-          className="rounded-xl px-5 py-3 flex items-center gap-3 text-sm"
-          style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.3)', color: 'var(--text-2)' }}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 flex-shrink-0 text-violet-400"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          <span>Modo de edição ativo — renomeie disciplinas e tópicos, altere cores, adicione ou remova itens.</span>
-          <button
-            onClick={() => setEditMode(false)}
-            className="ml-auto text-xs text-violet-400 hover:text-violet-300"
-          >
-            Sair da edição
-          </button>
+      {/* ── Plan list ── */}
+      {available.length === 0 && (
+        <div className="text-center py-20">
+          <p className="font-semibold" style={{ color: 'var(--text-3)' }}>Nenhum edital cadastrado</p>
+          <p className="text-sm mt-2" style={{ color: 'var(--text-mut)' }}>
+            Clique em "+ Criar edital" para adicionar as disciplinas e tópicos do seu concurso.
+          </p>
         </div>
       )}
 
-      {/* ── Progress card ── */}
-      {selectedPlan && progress && !editMode && (
-        <div className="rounded-xl p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--bdr-md)' }}>
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <p className="text-xs uppercase tracking-wider" style={{ color: 'var(--text-3)' }}>Progresso no edital</p>
-              <p className="text-sm mt-0.5" style={{ color: 'var(--text-2)' }}>
-                {progress.completedTopics} de {progress.totalTopics} tópicos concluídos
+      {available.map(plan => (
+        <div key={plan.id} className="rounded-xl overflow-hidden" style={{ background: 'var(--bg-card)', border: expandedPlanId === plan.id ? '1px solid rgba(124,58,237,0.3)' : '1px solid var(--bdr-md)' }}>
+          {/* Plan header */}
+          <div
+            className="flex items-center gap-4 px-5 py-4 cursor-pointer transition-colors"
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--row-bg)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            onClick={() => togglePlan(plan)}
+          >
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.2)' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>{plan.name}</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-mut)' }}>
+                {plan.organization && plan.organization !== '' ? plan.organization : 'Edital personalizado'}
               </p>
             </div>
-            <span className="text-2xl font-bold text-violet-400">{progress.progressPercent}%</span>
+            <button
+              onClick={e => { e.stopPropagation(); handleDeletePlan(plan) }}
+              title="Apagar edital"
+              className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
+              style={{ color: 'var(--text-mut)' }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.1)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-mut)'; e.currentTarget.style.background = 'transparent' }}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            </button>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={`w-4 h-4 transition-transform flex-shrink-0 ${expandedPlanId === plan.id ? 'rotate-180' : ''}`} style={{ color: 'var(--text-mut)' }}><polyline points="6 9 12 15 18 9"/></svg>
           </div>
-          <div className="w-full rounded-full h-2.5" style={{ background: 'var(--bg-elev)' }}>
-            <div
-              className="bg-violet-500 h-2.5 rounded-full transition-all duration-500"
-              style={{ width: `${progress.progressPercent}%` }}
-            />
-          </div>
-          <div className="flex gap-5 mt-3 text-xs" style={{ color: 'var(--text-mut)' }}>
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ background: 'var(--bg-elev)' }} />Não estudado</span>
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-yellow-400" />Estudado</span>
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-400" />Dominado</span>
-          </div>
-        </div>
-      )}
 
-      {/* ── Search and filter (hidden in edit mode) ── */}
-      {subjects.length > 0 && !editMode && (
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Buscar tópico..."
-              className="w-full rounded-lg pl-3 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-              style={{ background: 'var(--bg-card)', border: '1px solid var(--bdr-md)', color: 'var(--text-2)' }}
-            />
-            {search && (
-              <button
-                onClick={() => setSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-80 flex items-center justify-center"
-                style={{ color: 'var(--text-mut)' }}
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" className="w-3.5 h-3.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            )}
-          </div>
-          <div className="flex gap-1.5 flex-wrap">
-            {FILTERS.map(f => (
-              <button
-                key={f.key}
-                onClick={() => setFilterStatus(f.key)}
-                className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                  filterStatus === f.key
-                    ? 'bg-violet-600/20 border-violet-500 text-violet-400'
-                    : ''
-                }`}
-                style={filterStatus !== f.key ? { border: '1px solid var(--bdr-md)', color: 'var(--text-3)' } : undefined}
-              >
-                {f.label}
-                {f.key !== 'ALL' && (
-                  <span className="ml-1.5 opacity-60">
-                    {subjects.reduce((acc, s) => acc + s.topics.filter(t => t.status === f.key).length, 0)}
-                  </span>
+          {/* Expanded content */}
+          {expandedPlanId === plan.id && (
+            <div style={{ borderTop: '1px solid var(--bdr)' }}>
+              {/* Toolbar */}
+              <div className="flex items-center justify-between gap-3 px-5 py-3 flex-wrap" style={{ background: 'var(--row-bg)' }}>
+                <div className="flex items-center gap-2">
+                  {editMode ? (
+                    <button onClick={() => setEditMode(false)} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M20 6L9 17l-5-5"/></svg> Concluído
+                    </button>
+                  ) : (
+                    <button onClick={() => setEditMode(true)} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors" style={{ border: '1px solid var(--bdr-md)', color: 'var(--text-3)' }}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
+                    </button>
+                  )}
+                </div>
+                {progress && !editMode && (
+                  <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--text-mut)' }}>
+                    <span>{progress.completedTopics}/{progress.totalTopics} tópicos</span>
+                    <div className="w-24 h-1.5 rounded-full" style={{ background: 'var(--bg-elev)' }}>
+                      <div className="h-full rounded-full bg-violet-500 transition-all" style={{ width: `${progress.progressPercent}%` }} />
+                    </div>
+                    <span className="font-bold text-violet-400">{progress.progressPercent}%</span>
+                  </div>
                 )}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+              </div>
 
-      {/* ── Empty state ── */}
-      {!selectedPlan && !loading && (
-        <div className="text-center py-20">
-          <p className="font-semibold" style={{ color: 'var(--text-3)' }}>Nenhum edital carregado</p>
-          <p className="text-sm mt-2" style={{ color: 'var(--text-mut)' }}>
-            Clique em "+ Importar" acima para carregar os tópicos do seu concurso,
-            ou crie um edital personalizado.
-          </p>
-        </div>
-      )}
+              {/* Search and filter */}
+              {subjects.length > 0 && !editMode && (
+                <div className="flex flex-col sm:flex-row gap-3 px-5 py-3">
+                  <div className="relative flex-1">
+                    <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar tópico..."
+                      className="w-full rounded-lg pl-3 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      style={{ background: 'var(--bg-elev)', border: '1px solid var(--bdr)', color: 'var(--text-2)' }} />
+                    {search && (
+                      <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-mut)' }}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" className="w-3.5 h-3.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {FILTERS.map(f => (
+                      <button key={f.key} onClick={() => setFilterStatus(f.key)}
+                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${filterStatus === f.key ? 'bg-violet-600/20 border-violet-500 text-violet-400' : ''}`}
+                        style={filterStatus !== f.key ? { border: '1px solid var(--bdr)', color: 'var(--text-3)' } : undefined}>
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-      {loading && <p className="animate-pulse text-center py-12" style={{ color: 'var(--text-3)' }}>Carregando tópicos...</p>}
+              {/* Loading */}
+              {loading && <p className="animate-pulse text-center py-8 text-sm" style={{ color: 'var(--text-3)' }}>Carregando...</p>}
 
-      {/* ── Subjects list ── */}
-      {!loading && displaySubjects.length > 0 && (
-        <div className="space-y-3">
-          {isFiltering && (
-            <p className="text-xs" style={{ color: 'var(--text-mut)' }}>
-              {totalFiltered} tópico{totalFiltered !== 1 ? 's' : ''} encontrado{totalFiltered !== 1 ? 's' : ''}
-              {' '}em {filteredSubjects.length} disciplina{filteredSubjects.length !== 1 ? 's' : ''}
-            </p>
+              {/* Subjects */}
+              {!loading && (
+                <div className="space-y-3 px-5 pb-5 pt-2">
+                  {isFiltering && filteredSubjects.length > 0 && (
+                    <p className="text-xs" style={{ color: 'var(--text-mut)' }}>{totalFiltered} tópico{totalFiltered !== 1 ? 's' : ''} encontrado{totalFiltered !== 1 ? 's' : ''}</p>
+                  )}
+                  {displaySubjects.map(s => (
+                    <SubjectAccordion key={s.id} subjectData={s} onTopicStatusChange={handleTopicStatusChange} forceOpen={isFiltering || editMode} editMode={editMode} onReload={reloadPlan} />
+                  ))}
+                  {editMode && <NewSubjectInput planId={expandedPlanId} onCreated={reloadPlan} />}
+                  {displaySubjects.length === 0 && !editMode && !isFiltering && (
+                    <p className="text-sm text-center py-4" style={{ color: 'var(--text-mut)' }}>Nenhuma disciplina cadastrada.</p>
+                  )}
+                  {displaySubjects.length === 0 && editMode && (
+                    <>
+                      <p className="text-sm text-center py-2" style={{ color: 'var(--text-mut)' }}>Nenhuma disciplina. Adicione abaixo.</p>
+                      <NewSubjectInput planId={expandedPlanId} onCreated={reloadPlan} />
+                    </>
+                  )}
+                  {isFiltering && filteredSubjects.length === 0 && (
+                    <div className="text-center py-8" style={{ color: 'var(--text-mut)' }}>
+                      <p className="text-sm">Nenhum tópico encontrado</p>
+                      <button onClick={() => { setSearch(''); setFilterStatus('ALL') }} className="text-xs text-violet-400 hover:text-violet-300 mt-2">Limpar filtros</button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           )}
-          {displaySubjects.map(s => (
-            <SubjectAccordion
-              key={s.id}
-              subjectData={s}
-              onTopicStatusChange={handleTopicStatusChange}
-              forceOpen={isFiltering || editMode}
-              editMode={editMode}
-              onReload={reload}
-            />
-          ))}
-          {/* New subject row — edit mode only */}
-          {editMode && (
-            <NewSubjectInput planId={selectedPlan.id} onCreated={reload} />
-          )}
         </div>
-      )}
+      ))}
 
-      {/* New subject row when list is empty and in edit mode */}
-      {!loading && displaySubjects.length === 0 && editMode && selectedPlan && (
-        <div className="space-y-3">
-          <p className="text-sm text-center py-4" style={{ color: 'var(--text-mut)' }}>
-            Nenhuma disciplina ainda. Adicione abaixo.
-          </p>
-          <NewSubjectInput planId={selectedPlan.id} onCreated={reload} />
-        </div>
-      )}
-
-      {/* ── No results from filter ── */}
-      {!loading && isFiltering && filteredSubjects.length === 0 && (
-        <div className="text-center py-12" style={{ color: 'var(--text-mut)' }}>
-          <p className="text-sm">Nenhum tópico encontrado para "<span style={{ color: 'var(--text-3)' }}>{search}</span>"</p>
-          <button onClick={() => { setSearch(''); setFilterStatus('ALL') }} className="text-xs text-violet-400 hover:text-violet-300 mt-2">
-            Limpar filtros
-          </button>
-        </div>
-      )}
-
-      {/* ── Edital import modal ── */}
-      <EditalImportModal
-        open={importModalOpen}
-        onClose={() => setImportModalOpen(false)}
-        onImported={handleBulkImported}
-      />
+      <EditalImportModal open={importModalOpen} onClose={() => setImportModalOpen(false)} onImported={handleBulkImported} />
     </div>
   )
 }

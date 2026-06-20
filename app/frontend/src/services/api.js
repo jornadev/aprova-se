@@ -107,9 +107,14 @@ export const examPlanApi = {
   createCustom: (name) => api.post('/exam-plans/custom', { name }).then(r => r.data),
   createSubject: (planId, data) => api.post(`/exam-plans/${planId}/subjects`, data).then(r => r.data),
   renamePlan: (id, name) => api.put(`/exam-plans/${id}/name`, { name }).then(r => r.data),
+  deletePlan: (id) => api.delete(`/exam-plans/${id}`),
   deleteSubject: (id) => api.delete(`/subjects/${id}`),
   updateSubject: (id, data) => api.put(`/subjects/${id}`, data).then(r => r.data),
   bulkImport: (data) => api.post('/exam-plans/bulk-import', data).then(r => r.data),
+}
+
+export const editalParserApi = {
+  parse: (text) => api.post('/edital-parser', { text }).then(r => r.data),
 }
 
 export default api
