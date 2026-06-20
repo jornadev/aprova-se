@@ -1,0 +1,32 @@
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Frontend
+app/frontend/node_modules/
+app/frontend/dist/
+app/frontend/.env
+app/frontend/.env.local
+app/frontend/.env*.local
+
+# Backend build
+app/backend/target/
+app/backend/*.jar
+
+# Sensitive config — copy application.properties.example and fill in values
+app/backend/src/main/resources/application.properties
+
+# Logs
+*.log
+logs/

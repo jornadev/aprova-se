@@ -1,0 +1,31 @@
+spring.datasource.url=jdbc:postgresql://localhost:5432/aprovase
+spring.datasource.username=postgres
+spring.datasource.password=SUA_SENHA_AQUI
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+server.port=8080
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.open-in-view=true
+spring.jackson.serialization.write-dates-as-timestamps=false
+spring.jackson.time-zone=America/Sao_Paulo
+
+# Swagger — mantenha false em producao
+springdoc.api-docs.path=/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+springdoc.swagger-ui.enabled=false
+
+# Gere um secret seguro: openssl rand -base64 64
+jwt.secret=SEU_JWT_SECRET_SEGURO_AQUI
+jwt.expiration=86400000
+
+# Email — configure com seu provedor SMTP (Gmail, SendGrid, etc.)
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=SEU_EMAIL_AQUI
+spring.mail.password=SUA_SENHA_APP_AQUI
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+# URL base para o link de redefinição de senha no email
+app.reset-password.url=https://SEU_DOMINIO/reset-password
+app.mail.from=noreply@SEU_DOMINIO
