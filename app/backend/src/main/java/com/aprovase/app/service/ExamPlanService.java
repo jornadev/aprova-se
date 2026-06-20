@@ -68,8 +68,8 @@ public class ExamPlanService {
                     result.add(info);
                 }
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao listar editais: " + e.getMessage(), e);
+        } catch (Exception ignored) {
+            // No exam files on classpath — skip
         }
 
         // Append custom plans (plans with subjects but not from any JSON file)
@@ -263,8 +263,8 @@ public class ExamPlanService {
                     importExam(node.get("slug").asText(), user);
                 }
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao importar editais: " + e.getMessage(), e);
+        } catch (Exception ignored) {
+            // No exam files found — skip auto-import
         }
     }
 
