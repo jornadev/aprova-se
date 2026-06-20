@@ -4,7 +4,10 @@ import SockJS from 'sockjs-client'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 
-const WS_URL = `${window.location.protocol}//${window.location.hostname}:8080/ws`
+const API_BASE = import.meta.env.VITE_API_URL || ''
+const WS_URL = API_BASE
+  ? API_BASE.replace(/\/api$/, '/ws')
+  : `${window.location.protocol}//${window.location.hostname}:8080/ws`
 
 export function useStudyRoom() {
   const { user } = useAuth()

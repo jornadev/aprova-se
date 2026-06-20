@@ -3,7 +3,6 @@ package com.aprovase.app.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -33,14 +32,37 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Order(1)
+    CorsConfigurationSource corsConfigurationSource() {
+        List<String> origins = new ArrayList<>(List.of("http://localhost:*", "http://127.0.0.1:*"));
+        if (extraOrigins != null && !extraOrigins.isBlank()) {
+            for (String origin : extraOrigins.split(",")) {
+                origins.add(origin.trim());
+            }
+        }
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(origins);
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
+    @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/ws/**").permitAll()
+                .requestMatchers(
+                    "/api/auth/register",
+                    "/api/auth/login",
+                    "/api/auth/forgot-password",
+                    "/api/auth/reset-password",
+                    "/ws/**"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -50,23 +72,5 @@ public class SecurityConfig {
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        List<String> origins = new ArrayList<>(List.of("http://localhost:*", "http://127.0.0.1:*"));
-        if (extraOrigins != null && !extraOrigins.isBlank()) {
-            for (String origin : extraOrigins.split(",")) {
-                origins.add(origin.trim());
-            }
-        }
-        config.setAllowedOriginPatterns(origins);
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
     }
 }
