@@ -24,8 +24,6 @@ app/frontend/.env*.local
 app/backend/target/
 app/backend/*.jar
 
-# Sensitive config — copy application.properties.example and fill in values
-app/backend/src/main/resources/application.properties
 
 # Logs
 *.log
