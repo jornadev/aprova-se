@@ -54,17 +54,19 @@ function formatDate() {
 }
 
 function formatHours(min) {
-  if (!min) return '0h'
+  if (!min) return '0min'
   const h = Math.floor(min / 60), m = min % 60
   if (h === 0) return `${m}min`
-  return m > 0 ? `${h}h ${m}min` : `${h}h`
+  if (m === 0) return `${h}h`
+  return `${h}h${String(m).padStart(2, '0')}min`
 }
 
 function formatMinutes(min) {
   if (!min) return '-'
   const h = Math.floor(min / 60), m = min % 60
   if (h === 0) return `${m}min`
-  return `${h}h${m > 0 ? String(m).padStart(2, '0') : ''}`
+  if (m === 0) return `${h}h`
+  return `${h}h${String(m).padStart(2, '0')}min`
 }
 
 // ── Big stat block ────────────────────────────────────────────────

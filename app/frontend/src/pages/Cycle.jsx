@@ -19,10 +19,11 @@ function formatTime(seconds) {
 }
 
 function fmtH(minutes) {
-  if (!minutes) return '0h'
+  if (!minutes) return '0min'
   const h = Math.floor(minutes / 60), m = minutes % 60
   if (h === 0) return `${m}min`
-  return `${h}h${m > 0 ? String(m).padStart(2, '0') : ''}`
+  if (m === 0) return `${h}h`
+  return `${h}h${String(m).padStart(2, '0')}min`
 }
 
 export default function Cycle() {

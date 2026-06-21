@@ -10,11 +10,11 @@ import { useToast } from '../context/ToastContext'
 
 // ── Helpers ───────────────────────────────────────────────────────
 function formatHours(minutes) {
-  if (!minutes || minutes === 0) return '0h'
-  const h = minutes / 60
-  if (h >= 100) return `${Math.round(h)}h`
-  if (h >= 10)  return `${Math.round(h)}h`
-  return `${Math.round(h * 10) / 10}h`
+  if (!minutes || minutes === 0) return '0min'
+  const h = Math.floor(minutes / 60), m = minutes % 60
+  if (h === 0) return `${m}min`
+  if (m === 0) return `${h}h`
+  return `${h}h${String(m).padStart(2, '0')}min`
 }
 
 function formatMinutesShort(min) {
@@ -22,7 +22,8 @@ function formatMinutesShort(min) {
   const h = Math.floor(min / 60)
   const m = min % 60
   if (h === 0) return `${m}min`
-  return `${h}h${m > 0 ? String(m).padStart(2, '0') + 'min' : ''}`
+  if (m === 0) return `${h}h`
+  return `${h}h${String(m).padStart(2, '0')}min`
 }
 
 function fmtNum(n) {
