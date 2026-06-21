@@ -299,9 +299,9 @@ export default function Dashboard() {
   }))
 
   const quote = getDailyQuote()
-  const hoursToday = formatHours((data.hoursToday || 0) * 60)
-  const hoursWeek  = formatHours((data.hoursWeek  || 0) * 60)
-  const hoursMonth = formatHours((data.hoursMonth || 0) * 60)
+  const hoursToday = formatHours(Math.round((data.hoursToday || 0) * 60))
+  const hoursWeek  = formatHours(Math.round((data.hoursWeek  || 0) * 60))
+  const hoursMonth = formatHours(Math.round((data.hoursMonth || 0) * 60))
   const streak     = data.currentStreak || 0
   const streakAccent = streak >= 14 ? '#f97316' : streak >= 7 ? '#eab308' : streak > 0 ? '#f59e0b' : '#475569'
 
