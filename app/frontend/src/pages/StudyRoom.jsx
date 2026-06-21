@@ -13,8 +13,8 @@ const TABLE_H = 100
 const WRAP_W  = TABLE_W + 2 * (CARD_W + GAP)   // 344
 const WRAP_H  = TABLE_H + 2 * (CARD_H + GAP)   // 300
 
-const ROOM_PAD_TOP  = 108
-const ROOM_PAD_SIDE = 80
+const ROOM_PAD_TOP  = 24
+const ROOM_PAD_SIDE = 20
 
 const SEAT_POS = {
   N: { top: 0,                                               left: Math.round((WRAP_W - CARD_W) / 2) },
@@ -31,15 +31,15 @@ function getSeatCenter(seatId) {
   const dir = m[2]
   const col = (n - 1) % 2
   const row = Math.floor((n - 1) / 2)
-  const wx  = ROOM_PAD_SIDE + col * (WRAP_W + 48)
-  const wy  = ROOM_PAD_TOP  + row * (WRAP_H + 48)
+  const wx  = ROOM_PAD_SIDE + col * (WRAP_W + 24)
+  const wy  = ROOM_PAD_TOP  + row * (WRAP_H + 24)
   const sp  = SEAT_POS[dir]
   return { x: wx + sp.left + CARD_W / 2, y: wy + sp.top + CARD_H / 2 }
 }
 
 // Door position: bottom-center inside the room box
-const DOOR_X = ROOM_PAD_SIDE + (2 * WRAP_W + 48) / 2  // 448
-const DOOR_Y = ROOM_PAD_TOP + 2 * WRAP_H + 48 + 32     // ~788
+const DOOR_X = ROOM_PAD_SIDE + (2 * WRAP_W + 24) / 2
+const DOOR_Y = ROOM_PAD_TOP + 2 * WRAP_H + 24 + 16
 
 // ── Misc ──────────────────────────────────────────────────────────
 const STATUS_PRESETS = [
@@ -760,101 +760,6 @@ function WalkingCharacter({ occupant, seatId, onDone }) {
 }
 
 // ── Room decorations ──────────────────────────────────────────────
-function BookshelfTop() {
-  const C = ['#e74c3c','#3498db','#16a34a','#f59e0b','#8b5cf6','#06b6d4','#ea580c','#15803d','#be123c','#1d4ed8','#ca8a04','#db2777','#0f766e','#7c3aed']
-  const H1 = [42,34,48,36,52,38,44,50,32,46,40,54,36,42,48,34,50,38,44,46,32,52,40,36,48]
-  const W1 = [14,12,16,13,15,12,14,16,13,14,12,15,14,13,16,12,14,13,15,14,12,16,13,14,12]
-  const H2 = [32,38,28,36,30,34,40,28,36,32,38,30,34,28,36,32,38,30,36,28,34,38,32,30,36]
-  const W2 = [12,10,14,11,13,10,12,14,11,12,10,13,12,11,14,10,12,11,13,12,10,14,11,12,10]
-  const row1=[],row2=[]
-  let x=8; H1.forEach((h,i)=>{row1.push({x,h,w:W1[i],c:C[i%C.length]});x+=W1[i]+2})
-  const vw=x+8; x=8
-  H2.forEach((h,i)=>{row2.push({x,h,w:W2[i],c:C[(i+7)%C.length]});x+=W2[i]+2})
-  return (
-    <div style={{position:'absolute',top:0,left:0,right:0,height:88,zIndex:2,overflow:'hidden'}}>
-      <div style={{position:'absolute',inset:0,background:'linear-gradient(180deg,#070a14 0%,#0e1120 100%)'}}/>
-      <svg width="100%" height="88" viewBox={`0 0 ${vw} 88`} preserveAspectRatio="xMidYMid slice" style={{position:'absolute',inset:0}}>
-        {row1.map((b,i)=>(
-          <g key={i}>
-            <rect x={b.x} y={40-b.h} width={b.w} height={b.h} rx="1.5" fill={b.c} opacity="0.82"/>
-            <rect x={b.x} y={40-b.h} width={b.w} height={3} rx="1" fill="rgba(255,255,255,0.22)"/>
-            {b.w>13&&<rect x={b.x+3} y={40-b.h+6} width={b.w-6} height={1} fill="rgba(255,255,255,0.1)"/>}
-          </g>
-        ))}
-        <rect x="0" y="40" width={vw} height="7" fill="#1a2035"/>
-        <rect x="0" y="40" width={vw} height="2" fill="rgba(99,102,241,0.2)"/>
-        {row2.map((b,i)=>(
-          <g key={i}>
-            <rect x={b.x} y={80-b.h} width={b.w} height={b.h} rx="1.5" fill={b.c} opacity="0.68"/>
-            <rect x={b.x} y={80-b.h} width={b.w} height={2} rx="1" fill="rgba(255,255,255,0.15)"/>
-          </g>
-        ))}
-        <rect x="0" y="80" width={vw} height="8" fill="#1a2035"/>
-        <rect x="0" y="80" width={vw} height="2" fill="rgba(99,102,241,0.15)"/>
-      </svg>
-    </div>
-  )
-}
-
-function SideBookshelf({ side }) {
-  const C = ['#e74c3c','#3498db','#16a34a','#f59e0b','#8b5cf6','#06b6d4','#ea580c','#db2877','#0f766e','#1d4ed8']
-  const heights = [18,24,16,22,20,26,16,24,18,22,20,26,18,22,16,24,20,18,26,22,16,24,18,20]
-  let y=10; const books=heights.map((h,i)=>{const b={y,h,c:C[(i+(side==='right'?5:0))%C.length]};y+=h+2;return b})
-  return (
-    <div style={{position:'absolute',top:88,bottom:0,[side]:0,width:24,background:'#070a14',borderRight:side==='left'?'3px solid rgba(99,102,241,0.2)':'none',borderLeft:side==='right'?'3px solid rgba(99,102,241,0.2)':'none',zIndex:1,overflow:'hidden'}}>
-      <svg width="24" height="100%" viewBox={`0 0 24 ${y+20}`} preserveAspectRatio="xMidYMid slice" style={{width:'100%',height:'100%'}}>
-        {books.map((b,i)=>(<g key={i}><rect x="3" y={b.y} width={18} height={b.h} rx="1.2" fill={b.c} opacity="0.72"/><rect x="3" y={b.y} width={18} height={2} rx="0.5" fill="rgba(255,255,255,0.18)"/></g>))}
-      </svg>
-    </div>
-  )
-}
-
-function DoorSVG() {
-  return (
-    <svg width="52" height="62" viewBox="0 0 52 62" fill="none">
-      {/* Frame */}
-      <rect x="1" y="0" width="50" height="62" rx="4" fill="#0e1428" stroke="rgba(99,102,241,0.3)" strokeWidth="2"/>
-      {/* Door panel */}
-      <rect x="4" y="3" width="44" height="56" rx="3" fill="#1a2440"/>
-      {/* Wood grain */}
-      <rect x="4" y="3" width="44" height="56" rx="3" fill="url(#doorGrain)" opacity="0.15"/>
-      <defs>
-        <linearGradient id="doorGrain" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="rgba(0,0,0,0)"/>
-          <stop offset="40%" stopColor="rgba(0,0,0,0.3)"/>
-          <stop offset="60%" stopColor="rgba(0,0,0,0)"/>
-          <stop offset="100%" stopColor="rgba(0,0,0,0.2)"/>
-        </linearGradient>
-      </defs>
-      {/* Upper panel */}
-      <rect x="8" y="7"  width="36" height="22" rx="2" fill="rgba(0,0,0,0.18)"/>
-      {/* Lower panel */}
-      <rect x="8" y="33" width="36" height="22" rx="2" fill="rgba(0,0,0,0.18)"/>
-      {/* Knob */}
-      <circle cx="40" cy="32" r="3.5" fill="#c4a05a" stroke="#d4b070" strokeWidth="1"/>
-      <circle cx="40" cy="32" r="1.8" fill="#d4b070"/>
-      {/* Warm glow from inside */}
-      <rect x="4" y="3" width="44" height="56" rx="3" fill="rgba(255,180,60,0.06)"/>
-      {/* Welcome mat */}
-      <rect x="6" y="57" width="40" height="5" rx="2" fill="rgba(99,102,241,0.3)" opacity="0.8"/>
-    </svg>
-  )
-}
-
-function WarmLampSVG() {
-  return (
-    <svg width="44" height="64" viewBox="0 0 44 64" fill="none">
-      <rect x="21" y="0" width="2" height="14" fill="#4a2e14"/>
-      <path d="M8 14 L4 38 L40 38 L36 14 Z" fill="#6b4226"/>
-      <path d="M8 14 L36 14" stroke="#8b5a36" strokeWidth="2"/>
-      <ellipse cx="22" cy="40" rx="18" ry="7"  fill="#f59e0b" opacity="0.15"/>
-      <ellipse cx="22" cy="50" rx="26" ry="14" fill="#f59e0b" opacity="0.07"/>
-      <ellipse cx="22" cy="58" rx="32" ry="18" fill="#f59e0b" opacity="0.04"/>
-      <path d="M10 18 L7 36 L14 36 L16 18 Z" fill="rgba(255,255,255,0.05)"/>
-    </svg>
-  )
-}
-
 function DeskLampSVG() {
   return (
     <svg width="28" height="34" viewBox="0 0 28 34" fill="none">
@@ -863,42 +768,6 @@ function DeskLampSVG() {
       <path d="M12 14 Q8 8 4 10 Q6 4 12 6 Q14 4 16 6 Q20 8 16 12 Z" fill="#6b4226"/>
       <ellipse cx="10" cy="22" rx="8"  ry="4"  fill="#f59e0b" opacity="0.14"/>
       <ellipse cx="10" cy="28" rx="12" ry="6"  fill="#f59e0b" opacity="0.06"/>
-    </svg>
-  )
-}
-
-function PlantSVG() {
-  return (
-    <svg width="38" height="56" viewBox="0 0 38 56" fill="none">
-      <path d="M9 43 L6 56 L32 56 L29 43 Z" fill="#1e3a2a"/>
-      <rect x="5" y="40" width="28" height="5" rx="2.5" fill="#2d4e3a"/>
-      <rect x="18" y="15" width="3" height="26" rx="1.5" fill="#16a34a"/>
-      <ellipse cx="19" cy="19" rx="13" ry="8" fill="#15803d" transform="rotate(-28 19 19)"/>
-      <ellipse cx="19" cy="19" rx="13" ry="8" fill="#16a34a" transform="rotate(28 19 19)"/>
-      <ellipse cx="19" cy="10" rx="9"  ry="7" fill="#22c55e"/>
-      <ellipse cx="19" cy="6"  rx="5"  ry="4" fill="#4ade80" opacity="0.7"/>
-    </svg>
-  )
-}
-
-function WindowNightSVG() {
-  return (
-    <svg width="86" height="64" viewBox="0 0 86 64" fill="none">
-      <rect x="0" y="0" width="86" height="64" rx="5" fill="#120b02" stroke="#4a2e14" strokeWidth="3"/>
-      <rect x="3" y="3" width="80" height="58" rx="3" fill="url(#nightSky)"/>
-      <defs>
-        <linearGradient id="nightSky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#0d1a3a" stopOpacity="0.9"/>
-          <stop offset="100%" stopColor="#1a0a02" stopOpacity="0.8"/>
-        </linearGradient>
-      </defs>
-      <rect x="41" y="3" width="4"  height="58" fill="#3a1f08"/>
-      <rect x="3"  y="30" width="80" height="4" fill="#3a1f08"/>
-      <circle cx="64" cy="15" r="9" fill="#fde68a" opacity="0.6"/>
-      <circle cx="68" cy="11" r="7" fill="#120b02" opacity="0.75"/>
-      {[[14,10],[22,6],[18,22],[58,22],[72,28],[24,42],[62,44],[12,36]].map(([cx,cy],i)=>(
-        <circle key={i} cx={cx} cy={cy} r={i%3===0?1.2:0.8} fill="white" opacity={0.4+i*0.06}/>
-      ))}
     </svg>
   )
 }
@@ -1099,8 +968,11 @@ function CharacterTooltip({ occupant, isMine, subjects, onUpdate, onLeave, ancho
   return createPortal(content, document.body)
 }
 
+// ── Facing rotation per seat direction ────────────────────────────
+const FACING_ROT = { N: 0, S: 180, E: -90, W: 90 }
+
 // ── Occupied card ─────────────────────────────────────────────────
-function OccupiedCard({ occupant, isMine, subjects, onUpdate, onLeave, hidden }) {
+function OccupiedCard({ occupant, isMine, subjects, onUpdate, onLeave, hidden, direction }) {
   const [hov, setHov] = useState(false)
   const ref       = useRef(null)
   const timerRef  = useRef(null)
@@ -1108,9 +980,11 @@ function OccupiedCard({ occupant, isMine, subjects, onUpdate, onLeave, hidden })
   const openTooltip  = useCallback(() => { clearTimeout(timerRef.current); setHov(true)  }, [])
   const closeTooltip = useCallback(() => { timerRef.current = setTimeout(() => setHov(false), 120) }, [])
 
+  const rot = FACING_ROT[direction] || 0
+
   return (
     <div ref={ref}
-      style={{ width: CARD_W, height: CARD_H, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0,
+      style={{ width: CARD_W, height: CARD_H, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 0,
         opacity: hidden ? 0 : 1, transition: hidden ? 'none' : 'opacity 0.5s ease 0.3s' }}
       onMouseEnter={openTooltip}
       onMouseLeave={closeTooltip}
@@ -1126,32 +1000,19 @@ function OccupiedCard({ occupant, isMine, subjects, onUpdate, onLeave, hidden })
       )}
 
       {/* Time badge */}
-      <div style={{ height: 20, display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(8,12,26,0.97)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 20, padding: '0 9px', boxShadow: '0 2px 10px rgba(0,0,0,0.6)' }}>
+      <div style={{ height: 20, display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(8,12,26,0.97)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 20, padding: '0 9px', boxShadow: '0 2px 10px rgba(0,0,0,0.6)', zIndex: 2 }}>
         <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         <span style={{ color: '#e2e8f0', fontSize: 10, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{formatElapsed(occupant.sittingAt)}</span>
         {isMine && <span style={{ width: 5, height: 5, borderRadius: '50%', background: occupant.avatarColor, display: 'inline-block', boxShadow: `0 0 5px ${occupant.avatarColor}` }} />}
       </div>
 
-      {/* Character */}
-      <div style={{ marginTop: 1, position: 'relative', transition: 'transform 0.2s', transform: hov ? 'translateY(-3px) scale(1.06)' : 'none' }}>
+      {/* Character — rotated to face the table */}
+      <div style={{ marginTop: 1, position: 'relative', transition: 'transform 0.2s', transform: `rotate(${rot}deg)${hov ? ' scale(1.06)' : ''}` }}>
         <SeatedCharacterSVG color={occupant.avatarColor} size={44} userId={occupant.userId} />
-        {occupant.avatarData && (
-          <img
-            src={occupant.avatarData}
-            alt={occupant.userName}
-            style={{
-              position: 'absolute', top: -4, right: -6,
-              width: 22, height: 22, borderRadius: '50%',
-              objectFit: 'cover',
-              border: `2px solid ${occupant.avatarColor}`,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.7)',
-            }}
-          />
-        )}
       </div>
 
       {/* Name tag */}
-      <div style={{ height: 17, display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(8,12,26,0.95)', border: `1px solid ${occupant.avatarColor}55`, borderRadius: 20, padding: '0 8px', maxWidth: CARD_W - 4, overflow: 'hidden', boxShadow: `0 0 8px ${occupant.avatarColor}22`, flexShrink: 0 }}>
+      <div style={{ height: 17, display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(8,12,26,0.95)', border: `1px solid ${occupant.avatarColor}55`, borderRadius: 20, padding: '0 8px', maxWidth: CARD_W - 4, overflow: 'hidden', boxShadow: `0 0 8px ${occupant.avatarColor}22`, flexShrink: 0, zIndex: 2 }}>
         <span style={{ width: 5, height: 5, borderRadius: '50%', background: occupant.avatarColor, display: 'inline-block', flexShrink: 0 }} />
         <span style={{ color: '#cbd5e1', fontSize: 10, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{occupant.userName}</span>
       </div>
@@ -1195,7 +1056,7 @@ function Table({ tableNum, seats, mySeatId, subjects, hiddenSeats, onSit, onUpda
         return (
           <div key={pos} style={{position:'absolute',top,left}}>
             {occupant
-              ? <OccupiedCard occupant={occupant} isMine={isMine} subjects={subjects} onUpdate={onUpdate} onLeave={onLeave} hidden={hidden}/>
+              ? <OccupiedCard occupant={occupant} isMine={isMine} subjects={subjects} onUpdate={onUpdate} onLeave={onLeave} hidden={hidden} direction={pos}/>
               : <EmptySeat seatId={seatId} canSit={!alreadySitting} onSit={onSit}/>
             }
           </div>
@@ -1706,8 +1567,8 @@ export default function StudyRoom() {
 
   // Scale the room to always fit the container without scrolling
   useEffect(() => {
-    const ROOM_NAT_W = 2 * ROOM_PAD_SIDE + 2 * WRAP_W + 48  // 896
-    const ROOM_NAT_H = ROOM_PAD_TOP + 2 * WRAP_H + 48 + 60   // 816
+    const ROOM_NAT_W = 2 * ROOM_PAD_SIDE + 2 * WRAP_W + 24
+    const ROOM_NAT_H = ROOM_PAD_TOP + 2 * WRAP_H + 24 + 24
     const update = () => {
       if (!roomContainerRef.current) return
       const { width, height } = roomContainerRef.current.getBoundingClientRect()
@@ -1774,7 +1635,7 @@ export default function StudyRoom() {
             background:'linear-gradient(180deg,#0d1022 0%,#090c18 100%)',
             border:'1px solid rgba(99,102,241,0.1)',
             boxShadow:'inset 0 1px 0 rgba(99,102,241,0.08),0 0 120px rgba(0,0,0,0.8)',
-            padding:'108px 80px 60px',
+            padding:`${ROOM_PAD_TOP}px ${ROOM_PAD_SIDE}px ${ROOM_PAD_TOP}px`,
             overflow:'hidden',
             position:'absolute',
             top:'50%', left:'50%',
@@ -1784,29 +1645,14 @@ export default function StudyRoom() {
             {/* Floor grid */}
             <div style={{position:'absolute',inset:0,borderRadius:24,pointerEvents:'none',backgroundImage:`repeating-linear-gradient(0deg,transparent,transparent 63px,rgba(99,102,241,0.04) 63px,rgba(99,102,241,0.04) 64px),repeating-linear-gradient(90deg,transparent,transparent 127px,rgba(99,102,241,0.03) 127px,rgba(99,102,241,0.03) 128px)`}}/>
             {/* Center glow */}
-            <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:2*WRAP_W+120,height:2*WRAP_H+120,borderRadius:40,pointerEvents:'none',background:'radial-gradient(ellipse at 50% 50%,rgba(124,58,237,0.07) 0%,transparent 65%)'}}/>
-
-            {/* Bookshelves */}
-            <BookshelfTop/>
-            <SideBookshelf side="left"/>
-            <SideBookshelf side="right"/>
-
-            {/* Top lamp glow */}
-            <div style={{position:'absolute',top:88,left:'50%',transform:'translateX(-50%)',width:'60%',height:32,pointerEvents:'none',background:'radial-gradient(ellipse at 50% 0%,rgba(245,158,11,0.08) 0%,transparent 80%)'}}/>
-
-            {/* Decor */}
-            <div className="absolute" style={{top:88,left:'50%',transform:'translateX(-50%)'}}><WarmLampSVG/></div>
-            <div className="absolute" style={{top:92,left:52}}><WindowNightSVG/></div>
-            <div className="absolute" style={{bottom:10,left:52,opacity:0.85}}><PlantSVG/></div>
-            <div className="absolute" style={{bottom:10,right:52,opacity:0.85}}><PlantSVG/></div>
-
-            {/* Door — bottom center between plants */}
-            <div className="absolute" style={{bottom:8,left:'50%',transform:'translateX(-50%)',zIndex:1,opacity:0.9}}>
-              <DoorSVG/>
-            </div>
+            <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:2*WRAP_W+80,height:2*WRAP_H+80,borderRadius:40,pointerEvents:'none',background:'radial-gradient(ellipse at 50% 50%,rgba(124,58,237,0.08) 0%,transparent 60%)'}}/>
+            {/* Warm ambient glow */}
+            <div style={{position:'absolute',top:0,left:'50%',transform:'translateX(-50%)',width:'80%',height:60,pointerEvents:'none',background:'radial-gradient(ellipse at 50% 0%,rgba(245,158,11,0.06) 0%,transparent 80%)'}}/>
+            {/* Corner vignettes */}
+            <div style={{position:'absolute',inset:0,borderRadius:24,pointerEvents:'none',background:'radial-gradient(ellipse at 50% 50%,transparent 50%,rgba(0,0,0,0.3) 100%)'}}/>
 
             {/* Tables */}
-            <div style={{display:'grid',gridTemplateColumns:`repeat(2,${WRAP_W}px)`,gap:48,position:'relative',zIndex:2}}>
+            <div style={{display:'grid',gridTemplateColumns:`repeat(2,${WRAP_W}px)`,gap:24,position:'relative',zIndex:2}}>
               {[1,2,3,4].map(n=>(
                 <Table key={n} tableNum={n} seats={roomState.seats} mySeatId={mySeatId}
                   subjects={subjects} hiddenSeats={hiddenSeats} onSit={setPending} onUpdate={updateSeat} onLeave={handleLeaveRequest}/>
@@ -1823,8 +1669,6 @@ export default function StudyRoom() {
               />
             ))}
 
-            {/* Bottom vignette */}
-            <div style={{position:'absolute',bottom:0,left:0,right:0,height:20,borderRadius:'0 0 24px 24px',pointerEvents:'none',background:'linear-gradient(to top,rgba(0,0,0,0.3),transparent)'}}/>
           </div>
         </div>
 
