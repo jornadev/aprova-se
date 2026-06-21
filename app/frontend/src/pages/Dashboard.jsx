@@ -162,8 +162,9 @@ function DisciplineTable({ subjects, todaySessions }) {
         </span>
         {!hasData && <span className="text-xs" style={{ color: 'var(--text-ghost)' }}>Nenhuma sessão registrada ainda</span>}
       </div>
+      <div className="overflow-x-auto">
       <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--bdr)' }}>
-        <table className="w-full text-sm">
+        <table className="w-full text-sm min-w-[500px]">
           <thead>
             <tr style={{ background: 'var(--row-bg)', borderBottom: '1px solid var(--row-bdr)' }}>
               <th className="text-left py-3 px-4 font-medium text-xs" style={{ color: 'var(--text-fad)' }}>Disciplina</th>
@@ -216,6 +217,7 @@ function DisciplineTable({ subjects, todaySessions }) {
             )}
           </tbody>
         </table>
+      </div>
       </div>
     </div>
   )

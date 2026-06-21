@@ -1464,6 +1464,7 @@ export default function StudyRoom() {
   const [showLeave,    setShowLeave] = useState(false)
   const [, setTick] = useState(0)
   const [sidebarTab,   setSidebarTab] = useState('estudantes') // 'estudantes' | 'chat'
+  const [sidebarOpen,  setSidebarOpen] = useState(false)
   const [chatInput,    setChatInput]  = useState('')
   const chatBottomRef   = useRef(null)
   const roomContainerRef = useRef(null)
@@ -1710,20 +1711,23 @@ export default function StudyRoom() {
       )}
 
       {/* Header */}
-      <div style={{borderBottom:'1px solid rgba(255,255,255,0.06)',background:'rgba(8,13,26,0.97)'}} className="flex items-center justify-between px-7 py-3 flex-shrink-0">
+      <div style={{borderBottom:'1px solid rgba(255,255,255,0.06)',background:'rgba(8,13,26,0.97)'}} className="flex items-center justify-between px-4 sm:px-7 py-3 flex-shrink-0">
         <div>
-          <h1 className="text-xl font-bold tracking-tight" style={{color:'#e2e8f0'}}>Sala de Estudos</h1>
-          <p className="text-xs mt-0.5" style={{color:'#475569'}}>Passe o mouse em um personagem para ver detalhes</p>
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight" style={{color:'#e2e8f0'}}>Sala de Estudos</h1>
+          <p className="text-xs mt-0.5 hidden sm:block" style={{color:'#475569'}}>Passe o mouse em um personagem para ver detalhes</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button onClick={cycleAmbient} style={{display:'flex',alignItems:'center',gap:6,padding:'5px 12px',borderRadius:20,background:ambientMode.id!=='off'?'rgba(99,102,241,0.12)':'rgba(255,255,255,0.03)',border:ambientMode.id!=='off'?'1px solid rgba(99,102,241,0.28)':'1px solid rgba(255,255,255,0.07)',color:ambientMode.id!=='off'?'#818cf8':'#475569',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all 0.2s'}}>
             <span style={{fontSize:13}}>{ambientMode.icon}</span>
-            <span>{ambientMode.label}</span>
+            <span className="hidden sm:inline">{ambientMode.label}</span>
           </button>
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${connected?'bg-emerald-500 animate-pulse':'bg-stone-700'}`}/>
-            <span className="text-xs" style={{color:'#475569'}}>{connected?'Ao vivo':'Conectando...'}</span>
+            <span className="text-xs hidden sm:inline" style={{color:'#475569'}}>{connected?'Ao vivo':'Conectando...'}</span>
           </div>
+          <button onClick={() => setSidebarOpen(o => !o)} className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg" style={{background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',color:'#94a3b8'}}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </button>
         </div>
       </div>
 
@@ -1788,8 +1792,11 @@ export default function StudyRoom() {
           </div>
         </div>
 
+        {/* Mobile sidebar overlay */}
+        {sidebarOpen && <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />}
+
         {/* Sidebar */}
-        <aside style={{width:280,background:'#080d1a',borderLeft:'1px solid rgba(255,255,255,0.06)'}} className="flex-shrink-0 flex flex-col">
+        <aside style={{width:280,background:'#080d1a',borderLeft:'1px solid rgba(255,255,255,0.06)'}} className={`flex-shrink-0 flex flex-col ${sidebarOpen ? 'fixed right-0 top-0 bottom-0 z-40' : 'hidden'} lg:relative lg:flex`}>
           {/* Tab bar */}
           <div style={{borderBottom:'1px solid rgba(255,255,255,0.06)',background:'#080d1a'}} className="flex flex-shrink-0">
             {[{id:'estudantes',label:'Estudantes',badge:roomState.totalOnline||null},{id:'chat',label:'Chat',badge:null}].map(tab => (

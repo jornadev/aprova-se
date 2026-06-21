@@ -280,7 +280,7 @@ function SubjectAccordion({ subjectData, onTopicStatusChange, forceOpen, editMod
 
         {/* Color picker — edit mode only */}
         {editMode && (
-          <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center gap-1 flex-wrap" onClick={e => e.stopPropagation()}>
             {COLORS.map(c => (
               <button
                 key={c}

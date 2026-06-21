@@ -41,7 +41,7 @@ function SubjectBar({ result, subject }) {
   return (
     <div className="flex items-center gap-3">
       <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: subject?.color || '#475569' }} />
-      <span className="text-xs w-40 truncate flex-shrink-0" style={{ color: 'var(--text-fad)' }}>{subject?.name || 'Desconhecida'}</span>
+      <span className="text-xs w-20 sm:w-40 truncate flex-shrink-0" style={{ color: 'var(--text-fad)' }}>{subject?.name || 'Desconhecida'}</span>
       <div className="flex-1 rounded-full h-1.5 min-w-0" style={{ background: 'var(--bdr)' }}>
         <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: color }} />
       </div>
@@ -100,7 +100,7 @@ function SimCard({ sim, results, subjects, onAddResult, onDelete, expanded, onTo
           </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
           <button
             onClick={() => onAddResult(sim.id)}
             className="px-3 py-1.5 rounded-lg border border-violet-500/40 text-violet-400 hover:bg-violet-500/10 text-xs font-medium transition-colors"

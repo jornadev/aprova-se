@@ -390,7 +390,7 @@ export default function WeeklyPlan() {
       {/* Summary bar */}
       {(progress || totalPlanned > 0) && (
         <Card className="space-y-3">
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm gap-2">
             <div className="flex items-baseline gap-2">
               <span className="font-semibold" style={{ color: 'var(--text-2)' }}>
                 {fmtH(totalPlanned)} planejadas
@@ -484,7 +484,7 @@ export default function WeeklyPlan() {
 
       {/* Legend */}
       {dailyGoalMin > 0 && (
-        <div className="flex items-center gap-4 text-xs px-1" style={{ color: 'var(--text-mut)' }}>
+        <div className="flex items-center gap-4 text-xs px-1 flex-wrap" style={{ color: 'var(--text-mut)' }}>
           <span>Meta diária: {fmtH(dailyGoalMin)}</span>
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-green-400"/>
