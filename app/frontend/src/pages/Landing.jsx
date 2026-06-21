@@ -677,7 +677,7 @@ function PricingCard() {
             </div>
           </div>
         </div>
-        <p style={{ fontSize: '0.78rem', color: '#334155', marginBottom: 24 }}>Sem cartão, sem compromisso.</p>
+        <p style={{ fontSize: '0.78rem', color: '#334155', marginBottom: 24 }}>Acesso completo a todas as funcionalidades.</p>
 
         {/* Features */}
         <div className="space-y-2.5 mb-7">
@@ -697,9 +697,6 @@ function PricingCard() {
           style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', boxShadow: '0 4px 24px rgba(124,58,237,0.25)', textDecoration: 'none' }}>
           Criar conta grátis <ArrowRight />
         </Link>
-        <p className="text-center mt-3" style={{ fontSize: '0.72rem', color: '#1e3a5f' }}>
-          Sem cartão de crédito · Acesso completo
-        </p>
       </div>
     </div>
   )
@@ -772,7 +769,7 @@ export default function Landing() {
 
                 <Reveal delay={80}>
                   <h1 style={{ fontSize: 'clamp(2.4rem,5vw,3.8rem)', fontWeight: 900, lineHeight: 1.07, letterSpacing: '-1px', color: 'white', margin: 0 }}>
-                    Concurseiro hoje,<br />
+                    Estudante hoje,<br />
                     <span style={{ backgroundImage: 'linear-gradient(135deg,#a78bfa,#818cf8,#c4b5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                       aprovado amanhã.
                     </span>
@@ -800,7 +797,6 @@ export default function Landing() {
                       Já tenho conta →
                     </Link>
                   </div>
-                  <p style={{ fontSize: '0.75rem', color: '#334155', marginTop: 8 }}>Grátis · sem cartão de crédito · acesso completo</p>
                 </Reveal>
 
                 {/* Hero stats */}
@@ -875,6 +871,108 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* ── Study Room highlight ── */}
+        <section style={{ background: '#070b14', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '80px 0' }}>
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <Reveal>
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-5" style={{ background: 'rgba(124,58,237,0.09)', border: '1px solid rgba(124,58,237,0.22)' }}>
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#a78bfa', animation: 'dot-blink 1.5s ease-in-out infinite' }} />
+                    <span style={{ fontSize: '0.72rem', color: '#c4b5fd', fontWeight: 600, letterSpacing: '.04em' }}>Exclusivo</span>
+                  </div>
+                  <h2 style={{ fontSize: 'clamp(1.75rem,3vw,2.5rem)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1.15 }}>
+                    Você não precisa<br/>
+                    <span style={{ backgroundImage: 'linear-gradient(135deg,#a78bfa,#818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                      estudar sozinho.
+                    </span>
+                  </h2>
+                  <p style={{ fontSize: '1rem', color: '#64748b', lineHeight: 1.75, marginTop: 16 }}>
+                    A Sala de Estudos ao vivo conecta você com outros concurseiros em tempo real. Escolha um assento, mostre o que está estudando e acompanhe quem está online. Ter companhia muda tudo na motivação.
+                  </p>
+                  <div className="space-y-3 mt-6">
+                    {[
+                      'Veja quem está estudando agora, em tempo real',
+                      'Mostre sua disciplina e tempo de foco no seu assento',
+                      'Chat ao vivo para trocar dicas e motivação',
+                      'Sinta a energia de estudar junto, mesmo a distância',
+                    ].map(item => (
+                      <div key={item} className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.25)' }}>
+                          <Check color="#a78bfa" />
+                        </div>
+                        <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+
+              <Reveal delay={150}>
+                <div className="rounded-xl overflow-hidden" style={{ background: '#080f1e', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#060b16' }}>
+                    <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700 }}>SALA DE ESTUDOS</span>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#22c55e', animation: 'dot-blink 1.5s ease-in-out infinite' }} />
+                      <span style={{ fontSize: 10, color: '#22c55e', fontWeight: 600 }}>5 online</span>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <div className="grid grid-cols-4 gap-2.5">
+                      {[
+                        { name: 'Ana', subject: 'Português', time: '1h24', color: '#6366f1' },
+                        { name: 'Carlos', subject: 'RLM', time: '45min', color: '#22c55e' },
+                        { name: 'Bia', subject: 'Informática', time: '2h10', color: '#f59e0b' },
+                        { name: 'João', subject: 'Legislação', time: '32min', color: '#ef4444' },
+                        { name: 'Você', subject: '', time: '', color: '#7c3aed', empty: true },
+                        { name: 'Mari', subject: 'D. Penal', time: '1h55', color: '#ec4899' },
+                        null,
+                        null,
+                      ].map((seat, i) => (
+                        <div key={i} className="rounded-lg p-2.5 text-center" style={{
+                          background: seat?.empty ? 'rgba(124,58,237,0.08)' : seat ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.01)',
+                          border: `1px solid ${seat?.empty ? 'rgba(124,58,237,0.3)' : seat ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)'}`,
+                          minHeight: 70,
+                        }}>
+                          {seat ? (
+                            seat.empty ? (
+                              <div className="flex flex-col items-center justify-center h-full gap-1">
+                                <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: 'rgba(124,58,237,0.2)', border: '1px dashed rgba(124,58,237,0.4)' }}>
+                                  <span style={{ fontSize: 14, color: '#a78bfa' }}>+</span>
+                                </div>
+                                <span style={{ fontSize: 8, color: '#7c3aed', fontWeight: 600 }}>SENTAR</span>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="w-6 h-6 rounded-full mx-auto flex items-center justify-center" style={{ background: `${seat.color}30`, border: `1px solid ${seat.color}50` }}>
+                                  <span style={{ fontSize: 9, fontWeight: 700, color: seat.color }}>{seat.name[0]}</span>
+                                </div>
+                                <div style={{ fontSize: 9, fontWeight: 600, color: '#94a3b8', marginTop: 4 }}>{seat.name}</div>
+                                <div style={{ fontSize: 8, color: seat.color, marginTop: 1 }}>{seat.subject}</div>
+                                <div style={{ fontSize: 8, color: '#334155', marginTop: 1 }}>{seat.time}</div>
+                              </>
+                            )
+                          ) : (
+                            <div className="flex items-center justify-center h-full">
+                              <span style={{ fontSize: 9, color: '#1e293b' }}>vazio</span>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 pt-3 flex items-center gap-2" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                      <div className="flex-1 rounded-lg px-2.5 py-1.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <span style={{ fontSize: 9, color: '#334155' }}>Bora estudar galera!</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
         {/* ── How it works ── */}
         <section id="how" style={{ background: '#070b14', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '80px 0' }}>
           <div className="max-w-5xl mx-auto px-6">
@@ -887,7 +985,7 @@ export default function Landing() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 relative">
               {/* Connector line */}
               <div className="absolute top-8 left-1/4 right-1/4 h-px hidden md:block" style={{ background: 'linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent)' }} />
-              <HowStep n="1" Icon={IcoUserPlus} delay={0}   title="Crie sua conta"  desc="Sem cartão de crédito. Em menos de 1 minuto você já tem acesso completo e gratuito a todas as funcionalidades." />
+              <HowStep n="1" Icon={IcoUserPlus} delay={0}   title="Crie sua conta"  desc="Em menos de 1 minuto você já tem acesso completo a todas as funcionalidades." />
               <HowStep n="2" Icon={IcoUpload}   delay={120} title="Importe seu edital"   desc="Adicione as disciplinas e tópicos do seu concurso. O sistema organiza tudo e você já começa a marcar o progresso." />
               <HowStep n="3" Icon={IcoTarget}   delay={240} title="Estude com método"    desc="Use o cronômetro, complete revisões, siga o plano semanal e acompanhe sua evolução em tempo real." />
             </div>
@@ -956,7 +1054,6 @@ export default function Landing() {
                 style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', boxShadow: '0 4px 40px rgba(124,58,237,0.25)', textDecoration: 'none' }}>
                 Criar conta grátis <ArrowRight />
               </Link>
-              <p style={{ fontSize: '0.8rem', color: '#334155', marginTop: 14 }}>Grátis · sem cartão · acesso completo</p>
             </Reveal>
           </div>
         </section>
