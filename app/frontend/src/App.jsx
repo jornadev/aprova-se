@@ -25,7 +25,6 @@ const Stats       = lazy(() => import('./pages/Stats'))
 const Preferences = lazy(() => import('./pages/Preferences'))
 const Profile     = lazy(() => import('./pages/Profile'))
 const StudyRoom     = lazy(() => import('./pages/StudyRoom'))
-const QuestionBank  = lazy(() => import('./pages/QuestionBank'))
 const Login           = lazy(() => import('./pages/Login'))
 const Register        = lazy(() => import('./pages/Register'))
 const ForgotPassword  = lazy(() => import('./pages/ForgotPassword'))
@@ -109,7 +108,6 @@ function AppLayout() {
             <Route path="/preferences"element={<Preferences />} />
             <Route path="/profile"    element={<Profile />} />
             <Route path="/study-room" element={<StudyRoom />} />
-            <Route path="/questions" element={<QuestionBank />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
