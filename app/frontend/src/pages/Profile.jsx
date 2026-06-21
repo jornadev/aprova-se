@@ -88,6 +88,10 @@ export default function Profile() {
   const handleFileChange = async (e) => {
     const file = e.target.files[0]
     if (!file) return
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Imagem muito grande. Máximo 5MB.')
+      return
+    }
     const b64 = await cropToSquareBase64(file)
     setAvatarData(b64)
     setAvatarChanged(true)

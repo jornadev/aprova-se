@@ -170,6 +170,7 @@ export default function EditalImportModal({ open, onClose, onImported }) {
   const [planName, setPlanName] = useState('')
   const [discs, setDiscs] = useState([{ name: '', color: PALETTE[0], text: '', _focusName: true }])
   const [saving, setSaving] = useState(false)
+  const [aiUsage, setAiUsage] = useState(null)
 
   useEffect(() => {
     if (open) {
@@ -179,6 +180,7 @@ export default function EditalImportModal({ open, onClose, onImported }) {
       setPlanName('')
       setDiscs([{ name: '', color: PALETTE[0], text: '', _focusName: true }])
       setSaving(false)
+      editalParserApi.getUsage().then(setAiUsage).catch(() => {})
     }
   }, [open])
 
@@ -201,9 +203,14 @@ export default function EditalImportModal({ open, onClose, onImported }) {
         _focusName: false,
       })))
       setStep('edit')
+      editalParserApi.getUsage().then(setAiUsage).catch(() => {})
       toast.success(`${result.length} disciplina${result.length > 1 ? 's' : ''} identificada${result.length > 1 ? 's' : ''}!`)
-    } catch {
-      toast.error('Erro ao processar o texto. Tente novamente ou use o modo manual.')
+    } catch (err) {
+      if (err.response?.status === 429) {
+        toast.error(err.response.data?.error || 'Limite de análises por dia atingido. Tente novamente amanhã.')
+      } else {
+        toast.error('Erro ao processar o texto. Tente novamente ou use o modo manual.')
+      }
     } finally {
       setParsing(false)
     }
@@ -338,23 +345,30 @@ export default function EditalImportModal({ open, onClose, onImported }) {
         </div>
         <div style={{ padding: '14px 22px', borderTop: '1px solid var(--bdr)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
           <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: '0.5rem', fontSize: '0.85rem', background: 'none', border: '1px solid var(--bdr-md)', color: 'var(--text-3)', cursor: 'pointer' }}>Cancelar</button>
-          <button
-            onClick={handleAIParse}
-            disabled={!pasteText.trim() || parsing}
-            style={{
-              padding: '8px 20px', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600,
-              background: pasteText.trim() && !parsing ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' : 'var(--bg-elev)',
-              color: pasteText.trim() && !parsing ? 'white' : 'var(--text-mut)',
-              border: 'none', cursor: pasteText.trim() && !parsing ? 'pointer' : 'not-allowed',
-              display: 'flex', alignItems: 'center', gap: 8,
-            }}>
-            {parsing ? (
-              <>
-                <svg className="animate-spin" style={{ width: 14, height: 14 }} viewBox="0 0 24 24" fill="none"><circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
-                Analisando...
-              </>
-            ) : 'Importar com IA'}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {aiUsage && (
+              <span style={{ fontSize: '0.72rem', color: aiUsage.remaining === 0 ? '#ef4444' : 'var(--text-mut)' }}>
+                {aiUsage.used}/{aiUsage.limit} na semana
+              </span>
+            )}
+            <button
+              onClick={handleAIParse}
+              disabled={!pasteText.trim() || parsing || (aiUsage && aiUsage.remaining === 0)}
+              style={{
+                padding: '8px 20px', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600,
+                background: pasteText.trim() && !parsing && (!aiUsage || aiUsage.remaining > 0) ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' : 'var(--bg-elev)',
+                color: pasteText.trim() && !parsing && (!aiUsage || aiUsage.remaining > 0) ? 'white' : 'var(--text-mut)',
+                border: 'none', cursor: pasteText.trim() && !parsing && (!aiUsage || aiUsage.remaining > 0) ? 'pointer' : 'not-allowed',
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}>
+              {parsing ? (
+                <>
+                  <svg className="animate-spin" style={{ width: 14, height: 14 }} viewBox="0 0 24 24" fill="none"><circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
+                  Analisando...
+                </>
+              ) : (aiUsage && aiUsage.remaining === 0) ? 'Limite atingido' : 'Importar com IA'}
+            </button>
+          </div>
         </div>
       </ModalShell>
     )

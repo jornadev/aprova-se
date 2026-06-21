@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class EditalParserService {
@@ -15,10 +17,53 @@ public class EditalParserService {
     @Value("${gemini.api-key:}")
     private String apiKey;
 
+    private static final int MAX_REQUESTS_PER_WEEK = 15;
+    private static final long WEEK_MS = 7L * 24 * 60 * 60 * 1000;
+    private final Map<String, List<Long>> requestLog = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public List<Map<String, Object>> parse(String rawText) {
+    private void checkRateLimit(Long userId) {
+        String key = String.valueOf(userId);
+        long now = System.currentTimeMillis();
+        long weekAgo = now - WEEK_MS;
+
+        requestLog.compute(key, (k, timestamps) -> {
+            if (timestamps == null) timestamps = new ArrayList<>();
+            timestamps.removeIf(t -> t < weekAgo);
+            return timestamps;
+        });
+
+        List<Long> timestamps = requestLog.get(key);
+        if (timestamps != null && timestamps.size() >= MAX_REQUESTS_PER_WEEK) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
+                    "Limite de " + MAX_REQUESTS_PER_WEEK + " análises por semana atingido. Tente novamente em alguns dias.");
+        }
+
+        requestLog.computeIfAbsent(key, k -> new ArrayList<>()).add(now);
+    }
+
+    public Map<String, Object> getUsage(Long userId) {
+        String key = String.valueOf(userId);
+        long now = System.currentTimeMillis();
+        long weekAgo = now - WEEK_MS;
+
+        requestLog.compute(key, (k, timestamps) -> {
+            if (timestamps == null) return new ArrayList<>();
+            timestamps.removeIf(t -> t < weekAgo);
+            return timestamps;
+        });
+
+        int used = requestLog.getOrDefault(key, List.of()).size();
+        Map<String, Object> result = new java.util.LinkedHashMap<>();
+        result.put("used", used);
+        result.put("limit", MAX_REQUESTS_PER_WEEK);
+        result.put("remaining", Math.max(0, MAX_REQUESTS_PER_WEEK - used));
+        return result;
+    }
+
+    public List<Map<String, Object>> parse(String rawText, Long userId) {
+        checkRateLimit(userId);
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException("Gemini API key not configured.");
         }

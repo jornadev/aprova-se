@@ -144,6 +144,7 @@ export const examPlanApi = {
 
 export const editalParserApi = {
   parse: (text) => api.post('/edital-parser', { text }).then(r => r.data),
+  getUsage: () => api.get('/edital-parser/usage').then(r => r.data),
 }
 
 export default api
