@@ -38,8 +38,12 @@ public class StudySessionService {
     }
 
     public StudySession startSession(Long subjectId, User user) {
+        if (subjectId == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Disciplina é obrigatória");
         Subject subject = subjectRepository.findById(subjectId)
-            .orElseThrow(() -> new RuntimeException("Subject not found: " + subjectId));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Disciplina não encontrada"));
+        if (!subject.getUser().getId().equals(user.getId()))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Disciplina não pertence ao usuário");
         StudySession session = new StudySession();
         session.setUser(user);
         session.setSubject(subject);
@@ -63,8 +67,14 @@ public class StudySessionService {
     }
 
     public StudySession createManual(StudySession session, User user) {
+        if (session.getSubject() == null || session.getSubject().getId() == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Disciplina é obrigatória");
+        if (session.getDuration() == null || session.getDuration() < 1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Duração deve ser de pelo menos 1 minuto");
         Subject subject = subjectRepository.findById(session.getSubject().getId())
-            .orElseThrow(() -> new RuntimeException("Subject not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Disciplina não encontrada"));
+        if (!subject.getUser().getId().equals(user.getId()))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Disciplina não pertence ao usuário");
         session.setSubject(subject);
         session.setUser(user);
         StudySession saved = sessionRepository.save(session);

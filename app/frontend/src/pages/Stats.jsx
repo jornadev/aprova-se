@@ -109,9 +109,9 @@ function KpiCard({ label, value, sub, accent = '#7c3aed' }) {
         style={{ background: `radial-gradient(circle at top right, ${accent} 0%, transparent 70%)` }}
       />
       <div className="relative space-y-1">
-        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none">{label}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-widest leading-none" style={{ color: 'var(--text-fad)' }}>{label}</p>
         <p className="text-3xl font-black leading-none tracking-tight" style={{ color: accent }}>{value}</p>
-        {sub && <p className="text-xs text-slate-500 leading-tight pt-0.5">{sub}</p>}
+        {sub && <p className="text-xs leading-tight pt-0.5" style={{ color: 'var(--text-mut)' }}>{sub}</p>}
       </div>
     </Card>
   )
@@ -294,14 +294,14 @@ function SubjectRow({ subject, maxHours }) {
   const acc = subject.accuracy
 
   return (
-    <div className="flex items-center gap-3 py-3 border-b border-slate-800/60 last:border-0">
+    <div className="flex items-center gap-3 py-3 last:border-0" style={{ borderBottom: '1px solid var(--bdr)' }}>
       <div className="w-1 h-10 rounded-full shrink-0" style={{ background: subject.color }} />
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-baseline mb-1.5">
-          <span className="text-sm font-semibold text-slate-200 truncate pr-2">{subject.name}</span>
-          <span className="text-sm font-bold text-white shrink-0">{formatHours((subject.hours || 0) * 60)}</span>
+          <span className="text-sm font-semibold truncate pr-2" style={{ color: 'var(--text-2)' }}>{subject.name}</span>
+          <span className="text-sm font-bold shrink-0" style={{ color: 'var(--text)' }}>{formatHours((subject.hours || 0) * 60)}</span>
         </div>
-        <div className="h-1.5 bg-slate-800/80 rounded-full overflow-hidden">
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bdr)' }}>
           <div
             className="h-full rounded-full transition-all duration-700"
             style={{ width: `${pct}%`, background: subject.color }}
@@ -314,10 +314,10 @@ function SubjectRow({ subject, maxHours }) {
             <div className={`text-sm font-bold ${
               acc >= 70 ? 'text-green-400' : acc >= 50 ? 'text-yellow-400' : 'text-red-400'
             }`}>{acc}%</div>
-            <div className="text-[10px] text-slate-500 mt-0.5">{fmtNum(subject.total)} quest.</div>
+            <div className="text-[10px] mt-0.5" style={{ color: 'var(--text-mut)' }}>{fmtNum(subject.total)} quest.</div>
           </>
         ) : (
-          <div className="text-xs text-slate-600">—</div>
+          <div className="text-xs" style={{ color: 'var(--text-ghost)' }}>—</div>
         )}
       </div>
     </div>
@@ -328,13 +328,13 @@ function SubjectRow({ subject, maxHours }) {
 function EmptyTrend() {
   return (
     <div className="flex flex-col items-center justify-center h-[220px] gap-2">
-      <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center">
-        <svg viewBox="0 0 20 20" className="w-5 h-5 fill-slate-600">
+      <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'var(--bg-elev)' }}>
+        <svg viewBox="0 0 20 20" className="w-5 h-5" style={{ fill: 'var(--text-ghost)' }}>
           <path d="M2 11l4-4 4 4 4-6 4 4v6H2z" opacity=".5"/>
           <path d="M2 13l4-4 4 4 4-6 4 4"/>
         </svg>
       </div>
-      <p className="text-xs text-slate-500 text-center max-w-[180px]">
+      <p className="text-xs text-center max-w-[180px]" style={{ color: 'var(--text-mut)' }}>
         Registre acertos e erros nas sessões para ver a tendência de aproveitamento.
       </p>
     </div>
@@ -385,8 +385,8 @@ export default function Stats() {
   const gridStroke = isDark ? '#1e293b' : 'rgba(0,0,0,0.06)'
 
   if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <div className="text-slate-400 animate-pulse text-sm">Carregando estatísticas...</div>
+    <div className="flex items-center gap-1.5 py-20 justify-center">
+      {[0,1,2].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-bounce" style={{ animationDelay: `${i*0.15}s` }}/>)}
     </div>
   )
 
@@ -400,8 +400,8 @@ export default function Stats() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Estatísticas</h1>
-        <p className="text-slate-400 text-sm">Análise detalhada do seu desempenho</p>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>Estatísticas</h1>
+        <p className="text-sm" style={{ color: 'var(--text-fad)' }}>Análise detalhada do seu desempenho</p>
       </div>
 
       {/* KPI cards */}
@@ -447,7 +447,7 @@ export default function Stats() {
       {/* Weekly + Accuracy trend */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
-          <h2 className="text-sm font-semibold text-slate-300 mb-4">Horas por semana</h2>
+          <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-2)' }}>Horas por semana</h2>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={weekly} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
@@ -466,7 +466,7 @@ export default function Stats() {
         </Card>
 
         <Card>
-          <h2 className="text-sm font-semibold text-slate-300 mb-4">Tendência de aproveitamento</h2>
+          <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-2)' }}>Tendência de aproveitamento</h2>
           {hasTrend ? (
             <ResponsiveContainer width="100%" height={220}>
               <AreaChart data={trend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
@@ -501,7 +501,7 @@ export default function Stats() {
       {/* Heatmap */}
       <Card>
         <div className="flex items-baseline justify-between mb-4">
-          <h2 className="text-sm font-semibold text-slate-300">Contribuições — últimos 12 meses</h2>
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--text-2)' }}>Contribuições — últimos 12 meses</h2>
           {streaks.current > 0 && (
             <span className="text-xs font-semibold text-orange-400">
               {streaks.current} {streaks.current === 1 ? 'dia' : 'dias'} consecutivos
@@ -515,10 +515,10 @@ export default function Stats() {
       {subjects.length > 0 && (
         <Card>
           <div className="flex items-baseline justify-between mb-1">
-            <h2 className="text-sm font-semibold text-slate-300">Desempenho por disciplina</h2>
-            <span className="text-xs text-slate-500">{subjects.length} disciplinas</span>
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--text-2)' }}>Desempenho por disciplina</h2>
+            <span className="text-xs" style={{ color: 'var(--text-mut)' }}>{subjects.length} disciplinas</span>
           </div>
-          <p className="text-xs text-slate-600 mb-4">Ordenado por horas estudadas. O % de aproveitamento considera todas as sessões.</p>
+          <p className="text-xs mb-4" style={{ color: 'var(--text-ghost)' }}>Ordenado por horas estudadas. O % de aproveitamento considera todas as sessões.</p>
           <div>
             {subjects.map(s => (
               <SubjectRow key={s.subjectId} subject={s} maxHours={maxHours} />
@@ -530,7 +530,7 @@ export default function Stats() {
       {/* Acertos/erros per subject — only if has question data */}
       {accuracy.length > 0 && accuracy.some(a => a.total > 0) && (
         <Card>
-          <h2 className="text-sm font-semibold text-slate-300 mb-4">Questões por disciplina</h2>
+          <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-2)' }}>Questões por disciplina</h2>
           <ResponsiveContainer width="100%" height={Math.max(180, accuracy.length * 44)}>
             <BarChart
               data={accuracy.filter(a => a.total > 0)}

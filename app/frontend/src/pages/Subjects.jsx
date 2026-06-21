@@ -18,14 +18,15 @@ function SubjectForm({ initial, onSave, onCancel }) {
     <div className="space-y-4">
       <Input label="Nome" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Ex: Direito Constitucional" />
       <div>
-        <label className="text-sm text-slate-400 mb-2 block">Cor</label>
+        <label className="text-sm mb-2 block" style={{ color: 'var(--text-fad)' }}>Cor</label>
         <div className="flex gap-2 flex-wrap">
           {COLORS.map(c => (
             <button
               key={c}
               type="button"
               onClick={() => set('color', c)}
-              className={`w-7 h-7 rounded-full border-2 transition-all ${form.color === c ? 'border-white scale-110' : 'border-transparent'}`}
+              className="w-7 h-7 rounded-full border-2 transition-all"
+              style={{ borderColor: form.color === c ? 'var(--text)' : 'transparent', transform: form.color === c ? 'scale(1.1)' : 'none' }}
               style={{ background: c }}
             />
           ))}
@@ -99,8 +100,8 @@ export default function Subjects() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Disciplinas</h1>
-          <p className="text-slate-400 text-sm">Gerencie suas matérias de estudo</p>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>Disciplinas</h1>
+          <p className="text-sm" style={{ color: 'var(--text-fad)' }}>Gerencie suas matérias de estudo</p>
         </div>
         <Button onClick={() => { setEditing(null); setModalOpen(true) }}>+ Nova Disciplina</Button>
       </div>
@@ -110,7 +111,7 @@ export default function Subjects() {
           <Card key={s.id} className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: s.color }} />
-              <span className="font-semibold text-white flex-1">{s.name}</span>
+              <span className="font-semibold flex-1" style={{ color: 'var(--text)' }}>{s.name}</span>
             </div>
             <div className="flex gap-2">
               <Badge color={s.color}>Prioridade {s.priority}</Badge>
@@ -125,7 +126,7 @@ export default function Subjects() {
         {subjects.length === 0 && (
           <div className="col-span-full">
             <Card>
-              <p className="text-slate-500 text-center py-6">Nenhuma disciplina cadastrada ainda.</p>
+              <p className="text-center py-6" style={{ color: 'var(--text-mut)' }}>Nenhuma disciplina cadastrada ainda. Clique em "+ Nova Disciplina" para começar.</p>
             </Card>
           </div>
         )}
@@ -138,7 +139,7 @@ export default function Subjects() {
           onSave={handleSave}
           onCancel={() => { setModalOpen(false); setEditing(null) }}
         />
-        {saving && <p className="text-xs text-slate-400 mt-2 text-center">Salvando...</p>}
+        {saving && <p className="text-xs mt-2 text-center" style={{ color: 'var(--text-fad)' }}>Salvando...</p>}
       </Modal>
     </div>
   )

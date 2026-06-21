@@ -2,15 +2,15 @@ import { Link } from 'react-router-dom'
 
 export default function NotFound() {
   return (
-    <div style={{ background: '#070b14', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+    <div style={{ background: 'var(--bg-page)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div style={{ textAlign: 'center', maxWidth: 400 }}>
         <div style={{ fontSize: '6rem', fontWeight: 900, lineHeight: 1, letterSpacing: '-4px', backgroundImage: 'linear-gradient(135deg, #7c3aed, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           404
         </div>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white', margin: '16px 0 8px' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text)', margin: '16px 0 8px' }}>
           Página não encontrada
         </h1>
-        <p style={{ fontSize: '0.95rem', color: '#64748b', lineHeight: 1.6, marginBottom: 32 }}>
+        <p style={{ fontSize: '0.95rem', color: 'var(--text-mut)', lineHeight: 1.6, marginBottom: 32 }}>
           A página que você procura não existe ou foi movida.
         </p>
         <Link

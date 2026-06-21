@@ -17,6 +17,7 @@ const I = {
   layers:    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 flex-shrink-0"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>,
   settings:  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 flex-shrink-0"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>,
   logout:    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 flex-shrink-0"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+  question:  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 flex-shrink-0"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
 }
 
 const NAV_GROUPS = [
@@ -35,6 +36,7 @@ const NAV_GROUPS = [
       { to: '/history',     label: 'Histórico',      icon: 'clock'     },
       { to: '/stats',       label: 'Estatísticas',   icon: 'chart'     },
       { to: '/simulations', label: 'Simulados',      icon: 'clipboard' },
+      { to: '/questions',   label: 'Questões',       icon: 'question'  },
       { to: '/revisions',   label: 'Revisões',       icon: 'refresh'   },
     ],
   },
@@ -48,7 +50,7 @@ const NAV_GROUPS = [
   },
 ]
 
-export default function Sidebar({ mobileOpen = false, onMobileClose = () => {} }) {
+export default function Sidebar({ mobileOpen = false, onMobileClose = () => {}, collapsed = false, onToggleCollapse = () => {} }) {
   const { user, logout } = useAuth()
   const { isDark } = useTheme()
   const navigate = useNavigate()
@@ -70,40 +72,64 @@ export default function Sidebar({ mobileOpen = false, onMobileClose = () => {} }
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-full w-56 flex flex-col z-40 transition-transform duration-300 ${
+      className={`fixed left-0 top-0 h-full flex flex-col z-40 transition-all duration-300 ${
         mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      }`}
+      } ${collapsed ? 'w-16' : 'w-56'}`}
       style={{
         background: 'var(--bg-app)',
         borderRight: '1px solid var(--bdr)',
       }}
     >
-      {/* Logo */}
-      <div className="px-5 pt-6 pb-5 flex items-center justify-between">
-        <span className="text-lg font-black tracking-tight" style={{ background: 'linear-gradient(90deg,#a78bfa,#818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          aprova.se
-        </span>
-        <button
-          onClick={onMobileClose}
-          className="lg:hidden w-7 h-7 flex items-center justify-center rounded-lg"
-          style={{ color: 'var(--text-mut)' }}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" className="w-4 h-4">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
+      {/* Logo + collapse toggle */}
+      <div className={`pt-6 pb-5 flex items-center justify-between ${collapsed ? 'px-3' : 'px-5'}`}>
+        {collapsed ? (
+          <span className="text-lg font-black tracking-tight" style={{ background: 'linear-gradient(90deg,#a78bfa,#818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            a.
+          </span>
+        ) : (
+          <span className="text-lg font-black tracking-tight" style={{ background: 'linear-gradient(90deg,#a78bfa,#818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            aprova.se
+          </span>
+        )}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={onToggleCollapse}
+            className="hidden lg:flex w-7 h-7 items-center justify-center rounded-lg transition-colors hover:bg-violet-500/10"
+            style={{ color: 'var(--text-mut)' }}
+            title={collapsed ? 'Expandir menu' : 'Recolher menu'}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+              {collapsed ? (
+                <polyline points="9 6 15 12 9 18"/>
+              ) : (
+                <polyline points="15 18 9 12 15 6"/>
+              )}
+            </svg>
+          </button>
+          <button
+            onClick={onMobileClose}
+            className="lg:hidden w-7 h-7 flex items-center justify-center rounded-lg"
+            style={{ color: 'var(--text-mut)' }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" className="w-4 h-4">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 pb-4 space-y-5">
+      <nav className={`flex-1 overflow-y-auto pb-4 space-y-5 ${collapsed ? 'px-2' : 'px-3'}`}>
         {NAV_GROUPS.map(group => (
           <div key={group.label}>
-            <p
-              className="text-[10px] font-bold tracking-widest uppercase px-2 mb-1.5"
-              style={{ color: isDark ? '#2a3550' : '#94a3b8' }}
-            >
-              {group.label}
-            </p>
+            {!collapsed && (
+              <p
+                className="text-[10px] font-bold tracking-widest uppercase px-2 mb-1.5"
+                style={{ color: isDark ? '#2a3550' : '#94a3b8' }}
+              >
+                {group.label}
+              </p>
+            )}
             <div className="space-y-0.5">
               {group.items.map(({ to, label, icon }) => (
                 <NavLink
@@ -111,12 +137,13 @@ export default function Sidebar({ mobileOpen = false, onMobileClose = () => {} }
                   to={to}
                   end={to === '/dashboard'}
                   onClick={onMobileClose}
+                  title={collapsed ? label : undefined}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group relative`
+                    `flex items-center ${collapsed ? 'justify-center' : 'gap-3'} px-3 py-2.5 rounded-xl text-sm font-medium transition-all group relative`
                   }
                   style={({ isActive }) => isActive ? {
                     background: 'rgba(124,58,237,0.1)',
-                    boxShadow: 'inset 2px 0 0 #7c3aed',
+                    boxShadow: collapsed ? 'none' : 'inset 2px 0 0 #7c3aed',
                     color: '#a78bfa',
                   } : {
                     color: 'var(--text-mut)',
@@ -133,7 +160,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose = () => {} }
                       <span style={{ color: isActive ? '#a78bfa' : undefined }} className="transition-colors">
                         {I[icon]}
                       </span>
-                      {label}
+                      {!collapsed && label}
                     </>
                   )}
                 </NavLink>
@@ -144,11 +171,12 @@ export default function Sidebar({ mobileOpen = false, onMobileClose = () => {} }
       </nav>
 
       {/* User */}
-      <div className="px-3 pb-4" style={{ borderTop: '1px solid var(--bdr)' }}>
+      <div className={`${collapsed ? 'px-2' : 'px-3'} pb-4`} style={{ borderTop: '1px solid var(--bdr)' }}>
         <NavLink
           to="/profile"
-          className="flex items-center gap-2.5 px-2 pt-4 pb-2 rounded-xl transition-colors group"
+          className={`flex items-center ${collapsed ? 'justify-center' : 'gap-2.5'} px-2 pt-4 pb-2 rounded-xl transition-colors group`}
           style={({ isActive }) => isActive ? { color: '#a78bfa' } : {}}
+          title={collapsed ? user?.name : undefined}
         >
           {({ isActive }) => (
             <>
@@ -167,23 +195,26 @@ export default function Sidebar({ mobileOpen = false, onMobileClose = () => {} }
                   </div>
                 )}
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold truncate transition-colors" style={{ color: isActive ? '#a78bfa' : 'var(--text-2)' }}>
-                  {user?.name}
-                </p>
-                <p className="text-[10px] truncate" style={{ color: 'var(--text-mut)' }}>{user?.email}</p>
-              </div>
+              {!collapsed && (
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold truncate transition-colors" style={{ color: isActive ? '#a78bfa' : 'var(--text-2)' }}>
+                    {user?.name}
+                  </p>
+                  <p className="text-[10px] truncate" style={{ color: 'var(--text-mut)' }}>{user?.email}</p>
+                </div>
+              )}
             </>
           )}
         </NavLink>
 
         <button
           onClick={() => { logout(); navigate('/login') }}
-          className="w-full flex items-center gap-2 text-left text-[11px] px-2 py-1.5 rounded-lg transition-all hover:bg-red-500/5 hover:text-red-400"
+          className={`w-full flex items-center ${collapsed ? 'justify-center' : 'gap-2'} text-left text-[11px] px-2 py-1.5 rounded-lg transition-all hover:bg-red-500/5 hover:text-red-400`}
           style={{ color: 'var(--text-mut)' }}
+          title={collapsed ? 'Sair da conta' : undefined}
         >
           {I.logout}
-          Sair da conta
+          {!collapsed && 'Sair da conta'}
         </button>
       </div>
     </aside>

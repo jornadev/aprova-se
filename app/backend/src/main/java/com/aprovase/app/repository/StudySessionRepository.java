@@ -55,4 +55,7 @@ public interface StudySessionRepository extends JpaRepository<StudySession, Long
 
     @Query("SELECT COALESCE(SUM(s.correctAnswers), 0), COALESCE(SUM(s.wrongAnswers), 0) FROM StudySession s WHERE s.user = :user AND s.duration IS NOT NULL AND s.startedAt BETWEEN :from AND :to")
     List<Object[]> sumQuestionsBetween(@Param("user") User user, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    @Query("SELECT s FROM StudySession s WHERE s.user = :user AND s.duration IS NOT NULL AND s.startedAt BETWEEN :from AND :to ORDER BY s.startedAt DESC")
+    List<StudySession> findByUserAndStartedAtBetweenOrderByStartedAtDesc(@Param("user") User user, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 }

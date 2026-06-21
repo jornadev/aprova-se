@@ -123,18 +123,22 @@ export default function Profile() {
 
   const initials = (name || '?').split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
 
-  if (loading) return <div className="text-slate-400 text-sm animate-pulse py-8 text-center">Carregando perfil...</div>
+  if (loading) return (
+    <div className="flex items-center gap-1.5 py-20 justify-center">
+      {[0,1,2].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-bounce" style={{ animationDelay: `${i*0.15}s` }}/>)}
+    </div>
+  )
 
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-white">Perfil</h1>
-        <p className="text-slate-400 text-sm">Suas informações pessoais</p>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>Perfil</h1>
+        <p className="text-sm" style={{ color: 'var(--text-fad)' }}>Suas informações pessoais</p>
       </div>
 
       {/* Avatar */}
       <Card>
-        <h2 className="text-sm font-semibold text-slate-200 mb-4">Foto de perfil</h2>
+        <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-2)' }}>Foto de perfil</h2>
         <div className="flex items-center gap-5">
           <button
             onClick={() => fileRef.current?.click()}
@@ -165,11 +169,12 @@ export default function Profile() {
             >
               Alterar foto
             </button>
-            <p className="text-xs text-slate-500 mt-1">JPG, PNG ou WEBP. A imagem é cortada em quadrado.</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-mut)' }}>JPG, PNG ou WEBP. A imagem é cortada em quadrado.</p>
             {avatarData && (
               <button
                 onClick={() => { setAvatarData(null); setAvatarChanged(true) }}
-                className="text-xs text-slate-600 hover:text-red-400 transition-colors mt-1 block"
+                className="text-xs hover:text-red-400 transition-colors mt-1 block"
+                style={{ color: 'var(--text-ghost)' }}
               >
                 Remover foto
               </button>
@@ -187,48 +192,52 @@ export default function Profile() {
 
       {/* Dados pessoais */}
       <Card className="space-y-4">
-        <h2 className="text-sm font-semibold text-slate-200">Dados pessoais</h2>
+        <h2 className="text-sm font-semibold" style={{ color: 'var(--text-2)' }}>Dados pessoais</h2>
 
         <div>
-          <label className="text-xs text-slate-400 block mb-1.5">Nome</label>
+          <label className="text-xs block mb-1.5" style={{ color: 'var(--text-fad)' }}>Nome</label>
           <input
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="Seu nome"
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-violet-500 transition-colors"
+            className="w-full rounded-xl px-3.5 py-2.5 text-sm transition-colors"
+            style={{ background: 'var(--bg-elev)', border: '1px solid var(--bdr-md)', color: 'var(--text)' }}
           />
         </div>
 
         <div>
-          <label className="text-xs text-slate-400 block mb-1.5">E-mail</label>
+          <label className="text-xs block mb-1.5" style={{ color: 'var(--text-fad)' }}>E-mail</label>
           <input
             value={user?.email || ''}
             disabled
-            className="w-full bg-slate-800/40 border border-slate-700/40 rounded-lg px-3 py-2.5 text-sm text-slate-500 cursor-not-allowed"
+            className="w-full rounded-lg px-3 py-2.5 text-sm cursor-not-allowed"
+            style={{ background: 'var(--bg-elev)', border: '1px solid var(--bdr)', color: 'var(--text-mut)', opacity: 0.6 }}
           />
         </div>
       </Card>
 
       {/* Sobre seu concurso */}
       <Card className="space-y-4">
-        <h2 className="text-sm font-semibold text-slate-200">Sobre seu concurso</h2>
+        <h2 className="text-sm font-semibold" style={{ color: 'var(--text-2)' }}>Sobre seu concurso</h2>
 
         <div>
-          <label className="text-xs text-slate-400 block mb-1.5">Concurso que está estudando</label>
+          <label className="text-xs block mb-1.5" style={{ color: 'var(--text-fad)' }}>Concurso que está estudando</label>
           <input
             value={concurso}
             onChange={e => setConcurso(e.target.value)}
             placeholder="Ex: Policial Penal RS 2026"
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-violet-500 transition-colors"
+            className="w-full rounded-xl px-3.5 py-2.5 text-sm transition-colors"
+            style={{ background: 'var(--bg-elev)', border: '1px solid var(--bdr-md)', color: 'var(--text)' }}
           />
         </div>
 
         <div>
-          <label className="text-xs text-slate-400 block mb-1.5">Estado onde mora</label>
+          <label className="text-xs block mb-1.5" style={{ color: 'var(--text-fad)' }}>Estado onde mora</label>
           <select
             value={estado}
             onChange={e => setEstado(e.target.value)}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-violet-500 transition-colors"
+            className="w-full rounded-xl px-3.5 py-2.5 text-sm transition-colors"
+            style={{ background: 'var(--bg-elev)', border: '1px solid var(--bdr-md)', color: 'var(--text)' }}
           >
             <option value="">Selecione o estado...</option>
             {ESTADOS.map(s => (

@@ -24,7 +24,8 @@ const Simulations = lazy(() => import('./pages/Simulations'))
 const Stats       = lazy(() => import('./pages/Stats'))
 const Preferences = lazy(() => import('./pages/Preferences'))
 const Profile     = lazy(() => import('./pages/Profile'))
-const StudyRoom   = lazy(() => import('./pages/StudyRoom'))
+const StudyRoom     = lazy(() => import('./pages/StudyRoom'))
+const QuestionBank  = lazy(() => import('./pages/QuestionBank'))
 const Login           = lazy(() => import('./pages/Login'))
 const Register        = lazy(() => import('./pages/Register'))
 const ForgotPassword  = lazy(() => import('./pages/ForgotPassword'))
@@ -52,6 +53,17 @@ function AppLayout() {
   const { pathname } = useLocation()
   const fullBleed = FULL_BLEED_ROUTES.includes(pathname)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try { return localStorage.getItem('sidebar-collapsed') === 'true' } catch { return false }
+  })
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed(prev => {
+      const next = !prev
+      try { localStorage.setItem('sidebar-collapsed', String(next)) } catch {}
+      return next
+    })
+  }
 
   return (
     <div className="flex min-h-screen" style={{ background: 'var(--bg-page)' }}>
@@ -79,9 +91,9 @@ function AppLayout() {
       </button>
 
       <OnboardingTour />
-      <Sidebar mobileOpen={mobileNavOpen} onMobileClose={() => setMobileNavOpen(false)} />
+      <Sidebar mobileOpen={mobileNavOpen} onMobileClose={() => setMobileNavOpen(false)} collapsed={sidebarCollapsed} onToggleCollapse={toggleSidebar} />
       <FloatingTimer />
-      <main className={`flex-1 ml-0 lg:ml-56 overflow-auto flex flex-col ${fullBleed ? '' : 'p-6 pt-16 lg:pt-6'}`}>
+      <main className={`flex-1 ml-0 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-56'} overflow-auto flex flex-col transition-all duration-300 ${fullBleed ? '' : 'p-6 pt-16 lg:pt-6'}`}>
         <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
           <Routes>
@@ -97,6 +109,7 @@ function AppLayout() {
             <Route path="/preferences"element={<Preferences />} />
             <Route path="/profile"    element={<Profile />} />
             <Route path="/study-room" element={<StudyRoom />} />
+            <Route path="/questions" element={<QuestionBank />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

@@ -9,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/simulations")
@@ -46,5 +47,10 @@ public class SimulationController {
     @GetMapping("/{id}/results")
     public List<SimulationResult> getResults(@PathVariable Long id, @AuthenticationPrincipal User user) {
         return service.getResults(id, user);
+    }
+
+    @GetMapping("/comparison")
+    public Map<String, Object> getComparison(@AuthenticationPrincipal User user) {
+        return service.getComparison(user);
     }
 }

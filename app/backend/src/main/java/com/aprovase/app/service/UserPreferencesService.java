@@ -3,8 +3,10 @@ package com.aprovase.app.service;
 import com.aprovase.app.entity.User;
 import com.aprovase.app.entity.UserPreferences;
 import com.aprovase.app.repository.UserPreferencesRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional
@@ -40,7 +42,11 @@ public class UserPreferencesService {
         prefs.setConcurso(updated.getConcurso());
         prefs.setEstado(updated.getEstado());
         if (updated.getAvatarColor() != null) prefs.setAvatarColor(updated.getAvatarColor());
-        if (updated.getAvatarData() != null) prefs.setAvatarData(updated.getAvatarData());
+        if (updated.getAvatarData() != null) {
+            if (updated.getAvatarData().length() > 500_000)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Avatar muito grande (máximo ~375KB)");
+            prefs.setAvatarData(updated.getAvatarData());
+        }
         return repository.save(prefs);
     }
 }

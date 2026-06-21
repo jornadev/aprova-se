@@ -53,27 +53,30 @@ export default function Revisions() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Revisões</h1>
-        <p className="text-slate-400 text-sm">Revisões espaçadas programadas</p>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>Revisões</h1>
+        <p className="text-sm" style={{ color: 'var(--text-fad)' }}>Revisões espaçadas programadas</p>
       </div>
 
       <div className="flex gap-2">
-        <button
-          onClick={() => setTab('today')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === 'today' ? 'bg-violet-600 text-white' : 'bg-slate-700 text-slate-400 hover:text-slate-200'}`}
-        >
-          Hoje ({today.length})
-        </button>
-        <button
-          onClick={() => setTab('pending')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === 'pending' ? 'bg-violet-600 text-white' : 'bg-slate-700 text-slate-400 hover:text-slate-200'}`}
-        >
-          Pendentes ({pending.length})
-        </button>
+        {['today', 'pending'].map(t => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            style={tab === t
+              ? { background: '#7c3aed', color: '#ffffff' }
+              : { background: 'var(--bg-elev)', color: 'var(--text-mut)' }
+            }
+          >
+            {t === 'today' ? `Hoje (${today.length})` : `Pendentes (${pending.length})`}
+          </button>
+        ))}
       </div>
 
       {loading ? (
-        <p className="text-slate-400 animate-pulse">Carregando...</p>
+        <div className="flex items-center gap-1.5 py-20 justify-center">
+          {[0,1,2].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-bounce" style={{ animationDelay: `${i*0.15}s` }}/>)}
+        </div>
       ) : (
         <div className="space-y-3">
           {list.map(r => {
@@ -83,8 +86,8 @@ export default function Revisions() {
               <Card key={r.id} className="flex items-center gap-4">
                 <div className="w-2.5 h-10 rounded-full flex-shrink-0" style={{ background: subject?.color || '#64748b' }} />
                 <div className="flex-1">
-                  <p className="font-medium text-white">{subject?.name || 'Desconhecida'}</p>
-                  <p className="text-xs text-slate-400">
+                  <p className="font-medium" style={{ color: 'var(--text)' }}>{subject?.name || 'Desconhecida'}</p>
+                  <p className="text-xs" style={{ color: 'var(--text-fad)' }}>
                     Agendada: {new Date(r.scheduledDate + 'T00:00:00').toLocaleDateString('pt-BR')}
                     {r.intervalDays && ` • Intervalo: ${r.intervalDays} dias`}
                   </p>
@@ -104,11 +107,17 @@ export default function Revisions() {
             )
           })}
           {list.length === 0 && (
-            <Card>
-              <p className="text-slate-500 text-center py-4">
-                {tab === 'today' ? 'Nenhuma revisão para hoje. Bom trabalho!' : 'Nenhuma revisão pendente.'}
+            <div className="text-center py-16">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--text-ghost)' }}>
+                <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+              </svg>
+              <p className="font-medium" style={{ color: 'var(--text-3)' }}>
+                {tab === 'today' ? 'Nenhuma revisão para hoje!' : 'Nenhuma revisão pendente.'}
               </p>
-            </Card>
+              <p className="text-sm mt-1" style={{ color: 'var(--text-mut)' }}>
+                {tab === 'today' ? 'Bom trabalho! Continue estudando para gerar novas revisões.' : 'As revisões aparecem automaticamente ao encerrar sessões de estudo.'}
+              </p>
+            </div>
           )}
         </div>
       )}

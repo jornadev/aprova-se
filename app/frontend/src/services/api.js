@@ -74,6 +74,35 @@ export const simulationApi = {
   delete: (id) => api.delete(`/simulations/${id}`),
   addResult: (id, data) => api.post(`/simulations/${id}/results`, data).then(r => r.data),
   getResults: (id) => api.get(`/simulations/${id}/results`).then(r => r.data),
+  getComparison: () => api.get('/simulations/comparison').then(r => r.data),
+}
+
+export const noteApi = {
+  getAll:      (params) => api.get('/notes', { params }).then(r => r.data),
+  create:      (data) => api.post('/notes', data).then(r => r.data),
+  update:      (id, data) => api.put(`/notes/${id}`, data).then(r => r.data),
+  delete:      (id) => api.delete(`/notes/${id}`),
+}
+
+export const questionApi = {
+  getAll:    (params) => api.get('/questions', { params }).then(r => r.data),
+  create:    (data) => api.post('/questions', data).then(r => r.data),
+  update:    (id, data) => api.put(`/questions/${id}`, data).then(r => r.data),
+  delete:    (id) => api.delete(`/questions/${id}`),
+  practice:  (params) => api.get('/questions/practice', { params }).then(r => r.data),
+}
+
+export const achievementApi = {
+  getAll: () => api.get('/achievements').then(r => r.data),
+  check: () => api.post('/achievements/check').then(r => r.data),
+}
+
+export const reportApi = {
+  downloadWeekly: () => api.get('/reports/weekly', { responseType: 'blob' }).then(r => {
+    const url = window.URL.createObjectURL(new Blob([r.data], { type: 'application/pdf' }))
+    const a = document.createElement('a'); a.href = url; a.download = 'relatorio-semanal.pdf'
+    document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(url)
+  }),
 }
 
 export const weeklyPlanApi = {

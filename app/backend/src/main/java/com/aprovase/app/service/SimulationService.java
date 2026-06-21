@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 @Transactional
@@ -70,5 +70,43 @@ public class SimulationService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         return resultRepository.findBySimulationId(simulationId);
+    }
+
+    public Map<String, Object> getComparison(User user) {
+        List<Simulation> simulations = simulationRepository.findByUserOrderByCreatedAtDesc(user);
+        List<Map<String, Object>> items = new ArrayList<>();
+
+        for (Simulation sim : simulations) {
+            List<SimulationResult> results = resultRepository.findBySimulationId(sim.getId());
+            int totalCorrect = 0, totalQuestions = 0;
+            List<Map<String, Object>> subjectResults = new ArrayList<>();
+
+            for (SimulationResult r : results) {
+                totalCorrect += r.getCorrect();
+                totalQuestions += r.getTotal();
+                Map<String, Object> sr = new LinkedHashMap<>();
+                sr.put("subjectName", r.getSubject().getName());
+                sr.put("correct", r.getCorrect());
+                sr.put("total", r.getTotal());
+                sr.put("pct", r.getTotal() > 0 ? Math.round((r.getCorrect() * 100.0) / r.getTotal() * 10.0) / 10.0 : 0);
+                subjectResults.add(sr);
+            }
+
+            Map<String, Object> entry = new LinkedHashMap<>();
+            entry.put("simulationId", sim.getId());
+            entry.put("name", sim.getName());
+            entry.put("examDate", sim.getExamDate());
+            entry.put("createdAt", sim.getCreatedAt());
+            entry.put("totalCorrect", totalCorrect);
+            entry.put("totalQuestions", totalQuestions);
+            entry.put("percentage", totalQuestions > 0 ? Math.round((totalCorrect * 100.0) / totalQuestions * 10.0) / 10.0 : 0);
+            entry.put("results", subjectResults);
+            items.add(entry);
+        }
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("simulations", items);
+        result.put("total", items.size());
+        return result;
     }
 }

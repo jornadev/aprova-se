@@ -4,6 +4,7 @@ import Button from './ui/Button'
 import Input from './ui/Input'
 import { sessionApi, subjectApi } from '../services/api'
 import { useToast } from '../context/ToastContext'
+import { useTheme } from '../context/ThemeContext'
 
 function formatTime(seconds) {
   const h = Math.floor(seconds / 3600)
@@ -40,7 +41,7 @@ function MinimizeIcon() {
   )
 }
 
-function Ring({ timeLeft, total, phase, large = false }) {
+function Ring({ timeLeft, total, phase, large = false, isDark = true }) {
   const r     = large ? 110 : 52
   const dim   = large ? 280 : 140
   const sw    = large ? 10  : 10
@@ -50,7 +51,7 @@ function Ring({ timeLeft, total, phase, large = false }) {
   return (
     <div className="relative inline-flex items-center justify-center">
       <svg width={dim} height={dim} style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx={dim/2} cy={dim/2} r={r} fill="none" stroke="#0f172a" strokeWidth={sw} />
+        <circle cx={dim/2} cy={dim/2} r={r} fill="none" stroke={isDark ? '#1e293b' : '#ddd6fe'} strokeWidth={sw} />
         <circle
           cx={dim/2} cy={dim/2} r={r} fill="none" stroke={color} strokeWidth={sw}
           strokeDasharray={circ} strokeDashoffset={circ * (1 - pct)}
@@ -59,8 +60,8 @@ function Ring({ timeLeft, total, phase, large = false }) {
       </svg>
       <div className="absolute flex flex-col items-center gap-1">
         <span
-          className="font-mono font-bold text-white tabular-nums leading-none"
-          style={{ fontSize: large ? '3.8rem' : '28px' }}
+          className="font-mono font-bold tabular-nums leading-none"
+          style={{ fontSize: large ? '3.8rem' : '28px', color: 'var(--text)' }}
         >
           {formatTime(timeLeft)}
         </span>
@@ -75,7 +76,7 @@ function Ring({ timeLeft, total, phase, large = false }) {
   )
 }
 
-function CycleDots({ pomCompleted, cyclesBeforeLong, pomPhase }) {
+function CycleDots({ pomCompleted, cyclesBeforeLong, pomPhase, isDark = true }) {
   const cyclePos = pomCompleted % cyclesBeforeLong
   return (
     <div className="flex items-center gap-2.5">
@@ -91,13 +92,13 @@ function CycleDots({ pomCompleted, cyclesBeforeLong, pomPhase }) {
               height: current ? 13 : 9,
               background: filled
                 ? PHASE.work.color
-                : current ? `${PHASE.work.color}55` : '#334155',
+                : current ? `${PHASE.work.color}55` : (isDark ? '#334155' : '#cbd5e1'),
             }}
           />
         )
       })}
       {pomCompleted > 0 && (
-        <span className="text-[11px] text-slate-500 ml-1 tabular-nums">{pomCompleted}×</span>
+        <span className="text-[11px] ml-1 tabular-nums" style={{ color: 'var(--text-mut)' }}>{pomCompleted}×</span>
       )}
     </div>
   )
@@ -105,6 +106,7 @@ function CycleDots({ pomCompleted, cyclesBeforeLong, pomPhase }) {
 
 export default function FloatingTimer() {
   const toast = useToast()
+  const { isDark } = useTheme()
   // state: idle | choosing | fullscreen | running | pomfullscreen | pomodoro | saving | manual
   const [state, setState] = useState('idle')
   const [mode, setMode]   = useState(null)
@@ -298,44 +300,51 @@ export default function FloatingTimer() {
       {state === 'fullscreen' && (
         <div
           className="fixed inset-0 z-[100] flex flex-col"
-          style={{ background: `radial-gradient(ellipse at 50% 42%, ${PHASE.work.glow} 0%, #0f172a 62%)` }}
+          style={{ background: isDark ? '#0a0e1a' : '#f1f0fb' }}
         >
           <div className="flex items-center justify-between px-8 pt-7">
             <span className="text-violet-400 font-bold text-lg tracking-tight">aprova.se</span>
             <button
               onClick={() => setState('running')}
-              className="flex items-center gap-2 text-slate-500 hover:text-slate-300 transition-colors text-sm"
+              className="flex items-center gap-2 transition-colors text-sm"
+              style={{ color: isDark ? '#64748b' : '#94a3b8' }}
             >
               <MinimizeIcon /> Minimizar
             </button>
           </div>
 
-          <div className="flex-1 flex flex-col items-center justify-center gap-6 select-none">
+          <div className="flex-1 flex flex-col items-center justify-center gap-5 select-none">
+            <p className="text-sm capitalize font-medium" style={{ color: isDark ? '#475569' : '#94a3b8' }}>{todayLabel}</p>
+
             <div className="flex items-center gap-2.5 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5">
               <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
-              <span className="text-violet-300 text-xs uppercase tracking-[0.18em] font-semibold">
+              <span className="text-xs uppercase tracking-[0.18em] font-semibold" style={{ color: '#a78bfa' }}>
                 Sessão em andamento
               </span>
             </div>
 
             <div
-              className="font-mono font-bold text-white tabular-nums leading-none"
+              className="font-mono font-bold tabular-nums leading-none"
               style={{
                 fontSize: 'clamp(5rem, 18vw, 11rem)',
                 letterSpacing: '-0.03em',
-                textShadow: '0 0 120px rgba(124,58,237,0.35)',
+                color: isDark ? '#ffffff' : '#1e1b4b',
+                textShadow: isDark ? '0 0 120px rgba(124,58,237,0.35)' : '0 0 80px rgba(124,58,237,0.12)',
               }}
             >
               {formatTimeFull(elapsed)}
             </div>
-
-            <p className="text-slate-600 text-sm capitalize">{todayLabel}</p>
           </div>
 
           <div className="flex items-center justify-center gap-4 pb-12">
             <button
               onClick={stopFree}
-              className="px-10 py-3.5 rounded-2xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-red-400 font-semibold text-sm transition-all hover:scale-105 active:scale-95"
+              className="px-10 py-3.5 rounded-2xl font-semibold text-sm transition-all hover:scale-105 active:scale-95"
+              style={{
+                background: isDark ? 'rgba(239,68,68,0.1)' : 'rgba(239,68,68,0.08)',
+                border: '1px solid rgba(239,68,68,0.25)',
+                color: '#ef4444',
+              }}
             >
               Encerrar sessão
             </button>
@@ -346,51 +355,57 @@ export default function FloatingTimer() {
       {/* ── FULLSCREEN — Pomodoro ── */}
       {state === 'pomfullscreen' && (
         <div
-          className="fixed inset-0 z-[100] flex flex-col transition-all duration-700"
-          style={{ background: `radial-gradient(ellipse at 50% 42%, ${phaseGlow} 0%, #0f172a 65%)` }}
+          className="fixed inset-0 z-[100] flex flex-col transition-colors duration-700"
+          style={{ background: isDark ? '#0a0e1a' : '#f1f0fb' }}
         >
           <div className="flex items-center justify-between px-8 pt-7">
             <span className="font-bold text-lg tracking-tight" style={{ color: phaseColor }}>aprova.se</span>
             <button
               onClick={() => setState('pomodoro')}
-              className="flex items-center gap-2 text-slate-500 hover:text-slate-300 transition-colors text-sm"
+              className="flex items-center gap-2 transition-colors text-sm"
+              style={{ color: isDark ? '#64748b' : '#94a3b8' }}
             >
               <MinimizeIcon /> Minimizar
             </button>
           </div>
 
           <div className="flex-1 flex flex-col items-center justify-center gap-7 select-none">
-            {/* Cycle dots */}
+            <p className="text-sm capitalize font-medium" style={{ color: isDark ? '#475569' : '#94a3b8' }}>{todayLabel}</p>
+
             <CycleDots
               pomCompleted={pomCompleted}
               cyclesBeforeLong={pomConfig.cyclesBeforeLong}
               pomPhase={pomPhase}
+              isDark={isDark}
             />
 
-            {/* Big ring */}
-            <div style={{ filter: `drop-shadow(0 0 40px ${phaseColor}33)` }}>
-              <Ring timeLeft={pomTimeLeft} total={pomTotalSecs} phase={pomPhase} large />
+            <div style={{ filter: isDark ? `drop-shadow(0 0 40px ${phaseColor}33)` : 'none' }}>
+              <Ring timeLeft={pomTimeLeft} total={pomTotalSecs} phase={pomPhase} large isDark={isDark} />
             </div>
 
-            {/* Acumulado */}
             {pomWorkSecs > 0 && (
-              <p className="text-slate-500 text-sm">
+              <p className="text-sm" style={{ color: isDark ? '#475569' : '#94a3b8' }}>
                 {formatTime(pomWorkSecs)} de foco acumulados
               </p>
             )}
           </div>
 
-          {/* Ações */}
           <div className="flex items-center justify-center gap-3 pb-12">
             <button
               onClick={skipPhase}
-              className="px-8 py-3.5 rounded-2xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition-all hover:scale-105 active:scale-95 border border-slate-700"
+              className="px-8 py-3.5 rounded-2xl font-semibold text-sm transition-all hover:scale-105 active:scale-95"
+              style={{ background: isDark ? '#1e293b' : '#e2e8f0', border: `1px solid ${isDark ? '#334155' : '#cbd5e1'}`, color: isDark ? '#cbd5e1' : '#475569' }}
             >
               Pular fase
             </button>
             <button
               onClick={stopPomodoro}
-              className="px-8 py-3.5 rounded-2xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-red-400 font-semibold text-sm transition-all hover:scale-105 active:scale-95"
+              className="px-8 py-3.5 rounded-2xl font-semibold text-sm transition-all hover:scale-105 active:scale-95"
+              style={{
+                background: isDark ? 'rgba(239,68,68,0.1)' : 'rgba(239,68,68,0.08)',
+                border: '1px solid rgba(239,68,68,0.25)',
+                color: '#ef4444',
+              }}
             >
               Encerrar sessão
             </button>
@@ -403,44 +418,48 @@ export default function FloatingTimer() {
 
         {/* Free minimizado */}
         {state === 'running' && (
-          <div className="bg-[#0f172a] border border-violet-500/40 rounded-2xl shadow-2xl p-4 flex flex-col items-center gap-3 w-52 ring-1 ring-violet-500/10">
+          <div className="rounded-2xl shadow-2xl p-4 flex flex-col items-center gap-3 w-52 ring-1 ring-violet-500/10"
+            style={{ background: 'var(--bg-card)', border: '1px solid rgba(139,92,246,0.4)' }}>
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
                 <span className="text-xs text-violet-400 uppercase tracking-widest font-medium">Estudando</span>
               </div>
-              <button onClick={() => setState('fullscreen')} title="Expandir" className="text-slate-500 hover:text-slate-300 transition-colors">
+              <button onClick={() => setState('fullscreen')} title="Expandir" className="transition-colors" style={{ color: 'var(--text-mut)' }}>
                 <MinimizeIcon />
               </button>
             </div>
-            <span className="text-4xl font-mono font-bold text-white tabular-nums leading-none">
+            <span className="text-4xl font-mono font-bold tabular-nums leading-none" style={{ color: 'var(--text)' }}>
               {formatTime(elapsed)}
             </span>
             <button onClick={stopFree} className="w-full py-2 rounded-xl bg-red-500 hover:bg-red-400 active:scale-95 text-white text-xs font-semibold transition-all">
-              ■ Encerrar
+              Encerrar
             </button>
           </div>
         )}
 
         {/* Pomodoro minimizado */}
         {state === 'pomodoro' && (
-          <div className="bg-[#0f172a] border border-slate-700/70 rounded-2xl shadow-2xl p-5 flex flex-col items-center gap-4 w-64">
+          <div className="rounded-2xl shadow-2xl p-5 flex flex-col items-center gap-4 w-64"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--bdr)' }}>
             <div className="flex items-center justify-between w-full">
               <CycleDots
                 pomCompleted={pomCompleted}
                 cyclesBeforeLong={pomConfig.cyclesBeforeLong}
                 pomPhase={pomPhase}
+                isDark={isDark}
               />
-              <button onClick={() => setState('pomfullscreen')} title="Expandir" className="text-slate-500 hover:text-slate-300 transition-colors ml-2">
+              <button onClick={() => setState('pomfullscreen')} title="Expandir" className="transition-colors ml-2" style={{ color: 'var(--text-mut)' }}>
                 <MinimizeIcon />
               </button>
             </div>
-            <Ring timeLeft={pomTimeLeft} total={pomTotalSecs} phase={pomPhase} />
+            <Ring timeLeft={pomTimeLeft} total={pomTotalSecs} phase={pomPhase} isDark={isDark} />
             {pomWorkSecs > 0 && (
-              <p className="text-[11px] text-slate-500 -mt-1">{formatTime(pomWorkSecs)} de foco acumulados</p>
+              <p className="text-[11px] -mt-1" style={{ color: 'var(--text-mut)' }}>{formatTime(pomWorkSecs)} de foco acumulados</p>
             )}
             <div className="flex gap-2 w-full">
-              <button onClick={skipPhase} className="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-all active:scale-95">Pular</button>
+              <button onClick={skipPhase} className="flex-1 py-2 rounded-xl text-xs font-medium transition-all active:scale-95"
+                style={{ background: isDark ? '#1e293b' : '#e2e8f0', color: 'var(--text-3)' }}>Pular</button>
               <button onClick={stopPomodoro} className="flex-1 py-2 rounded-xl border border-red-500/25 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold transition-all active:scale-95">Encerrar</button>
             </div>
           </div>
@@ -450,7 +469,8 @@ export default function FloatingTimer() {
         <div className="flex items-center gap-2">
           {state === 'idle' && (
             <button onClick={() => setState('manual')} title="Registrar sessão manualmente"
-              className="w-10 h-10 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-200 text-xl font-light transition-all hover:scale-110 active:scale-95 shadow-lg">
+              className="w-10 h-10 rounded-full flex items-center justify-center text-xl font-light transition-all hover:scale-110 active:scale-95 shadow-lg"
+              style={{ background: isDark ? '#334155' : '#e2e8f0', color: 'var(--text-2)' }}>
               +
             </button>
           )}
@@ -467,27 +487,30 @@ export default function FloatingTimer() {
       <Modal open={state === 'choosing'} onClose={() => setState('idle')} title="Como você quer estudar?">
         <div className="space-y-5">
           <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl border-2 border-violet-500/50 bg-violet-500/8 p-4 flex flex-col items-center gap-3 text-center">
+            <div className="rounded-xl border-2 border-violet-500/50 p-4 flex flex-col items-center gap-3 text-center"
+              style={{ background: 'rgba(139,92,246,0.08)' }}>
               <div className="w-11 h-11 rounded-full bg-violet-500/20 border border-violet-500/40 flex items-center justify-center">
                 <svg viewBox="0 0 24 24" className="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" strokeWidth="2.2">
                   <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">Pomodoro</p>
-                <p className="text-xs text-slate-400 mt-0.5 leading-snug">Ciclos de foco com pausas</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Pomodoro</p>
+                <p className="text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-fad)' }}>Ciclos de foco com pausas</p>
               </div>
             </div>
             <button onClick={startFree}
-              className="rounded-xl border-2 border-slate-600/70 bg-slate-700/25 hover:bg-slate-700/50 p-4 flex flex-col items-center gap-3 text-center transition-all group active:scale-95">
-              <div className="w-11 h-11 rounded-full bg-slate-600/50 group-hover:bg-slate-600/80 flex items-center justify-center transition-all">
-                <svg viewBox="0 0 24 24" className="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" strokeWidth="2.2">
+              className="rounded-xl border-2 p-4 flex flex-col items-center gap-3 text-center transition-all group active:scale-95"
+              style={{ borderColor: 'var(--bdr)', background: isDark ? 'rgba(51,65,85,0.25)' : 'rgba(226,232,240,0.5)' }}>
+              <div className="w-11 h-11 rounded-full flex items-center justify-center transition-all"
+                style={{ background: isDark ? 'rgba(71,85,105,0.5)' : 'rgba(203,213,225,0.6)' }}>
+                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: 'var(--text-3)' }}>
                   <polygon points="5 3 19 12 5 21 5 3" />
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">Sessão Livre</p>
-                <p className="text-xs text-slate-400 mt-0.5 leading-snug">Cronômetro em tela cheia</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Sessão Livre</p>
+                <p className="text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-fad)' }}>Cronômetro em tela cheia</p>
               </div>
             </button>
           </div>
@@ -502,10 +525,11 @@ export default function FloatingTimer() {
                 { key: 'cyclesBeforeLong', label: 'Ciclos p/ pausa longa', min: 2, max: 8  },
               ].map(({ key, label, min, max }) => (
                 <div key={key}>
-                  <label className="text-xs text-slate-400 block mb-1">{label}</label>
+                  <label className="text-xs block mb-1" style={{ color: 'var(--text-fad)' }}>{label}</label>
                   <input type="number" min={min} max={max} value={pomDraft[key]}
                     onChange={e => setPomDraft(c => ({ ...c, [key]: Math.min(max, Math.max(min, +e.target.value || min)) }))}
-                    className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-violet-500 tabular-nums"
+                    className="w-full rounded-xl px-3.5 py-2.5 text-sm tabular-nums transition-colors"
+                    style={{ background: 'var(--bg-elev)', border: '1px solid var(--bdr-md)', color: 'var(--text)' }}
                   />
                 </div>
               ))}
@@ -526,11 +550,11 @@ export default function FloatingTimer() {
             <Input label="Duração (minutos) *" type="number" min={1} value={form.manualMinutes}
               onChange={e => setForm(f => ({ ...f, manualMinutes: e.target.value }))} placeholder="Ex: 45" autoFocus />
           ) : (
-            <div className="bg-slate-800 rounded-xl p-4 text-center">
-              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">
+            <div className="rounded-xl p-4 text-center" style={{ background: 'var(--bg-elev)' }}>
+              <p className="text-xs uppercase tracking-wide mb-1" style={{ color: 'var(--text-fad)' }}>
                 {mode === 'pomodoro' ? 'Tempo de foco registrado' : 'Tempo registrado'}
               </p>
-              <p className="text-4xl font-mono font-bold text-white">{formatTime(elapsed)}</p>
+              <p className="text-4xl font-mono font-bold" style={{ color: 'var(--text)' }}>{formatTime(elapsed)}</p>
               {mode === 'pomodoro' && pomCompleted > 0 && (
                 <p className="text-xs text-violet-400 mt-1.5">
                   {pomCompleted} pomodoro{pomCompleted !== 1 ? 's' : ''} concluído{pomCompleted !== 1 ? 's' : ''}
@@ -540,9 +564,10 @@ export default function FloatingTimer() {
           )}
 
           <div>
-            <label className="text-sm text-slate-400 mb-1 block">Disciplina <span className="text-red-400">*</span></label>
+            <label className="text-sm mb-1 block" style={{ color: 'var(--text-fad)' }}>Disciplina <span className="text-red-400">*</span></label>
             <select value={form.subjectId} onChange={e => setForm(f => ({ ...f, subjectId: e.target.value }))}
-              className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className="w-full rounded-xl px-3.5 py-2.5 text-sm transition-colors"
+              style={{ background: 'var(--bg-elev)', border: '1px solid var(--bdr-md)', color: 'var(--text)' }}
               autoFocus={state !== 'manual'}>
               <option value="">Selecione a disciplina estudada...</option>
               {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -550,7 +575,7 @@ export default function FloatingTimer() {
             {selectedSubject && (
               <div className="flex items-center gap-2 mt-1.5">
                 <div className="w-2 h-2 rounded-full" style={{ background: selectedSubject.color }} />
-                <span className="text-xs text-slate-400">{selectedSubject.name}</span>
+                <span className="text-xs" style={{ color: 'var(--text-fad)' }}>{selectedSubject.name}</span>
               </div>
             )}
           </div>

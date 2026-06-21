@@ -1019,7 +1019,7 @@ function CharacterTooltip({ occupant, isMine, subjects, onUpdate, onLeave, ancho
         <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div>
             <label style={{ color: '#64748b', fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', display: 'block', marginBottom: 5 }}>DISCIPLINA</label>
-            <select value={selSubject} onChange={e => setSelSubject(e.target.value)} style={{ width: '100%', background: '#080d1a', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 10, padding: '7px 10px', fontSize: 12, color: '#a5b4fc', outline: 'none' }}>
+            <select value={selSubject} onChange={e => setSelSubject(e.target.value)} className="rounded-xl px-3.5 py-2.5 text-sm transition-colors" style={{ width: '100%', background: 'var(--bg-elev)', border: '1px solid var(--bdr-md)', color: 'var(--text)' }}>
               <option value="">Sem matéria</option>
               {subjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
             </select>
@@ -1269,6 +1269,7 @@ function SaveSessionModal({ mySeat, subjects, onSave, onDiscard }) {
               value={subjectId}
               onChange={e => setSubjectId(e.target.value)}
               autoFocus
+              className="rounded-xl transition-colors"
               style={{ ...fieldBase, color: subjectId ? '#a5b4fc' : '#334155' }}
             >
               <option value="">Selecione a disciplina...</option>
@@ -1454,7 +1455,7 @@ function SitModal({ open, subjects, onConfirm, onClose }) {
 // ── Page ──────────────────────────────────────────────────────────
 export default function StudyRoom() {
   const { user }   = useAuth()
-  const { currentRoomId, rooms, roomState, connected, mySeatId, sit, updateSeat, leave, switchRoom, chatMessages, sendMessage } = useStudyRoom()
+  const { roomState, connected, mySeatId, sit, updateSeat, leave, chatMessages, sendMessage } = useStudyRoom()
   const { ambientMode, cycleAmbient } = useAmbientSound()
   const [subjects,     setSubjects]  = useState([])
   const [pendingSeat,  setPending]   = useState(null)
@@ -1713,34 +1714,6 @@ export default function StudyRoom() {
           <p className="text-xs mt-0.5" style={{color:'#475569'}}>Passe o mouse em um personagem para ver detalhes</p>
         </div>
         <div className="flex items-center gap-3">
-          {/* Room selector */}
-          {rooms.length > 1 && (
-            <div className="flex items-center gap-1.5">
-              {rooms.map(r => {
-                const active = r.id === currentRoomId
-                return (
-                  <button key={r.id} onClick={() => !mySeatId && switchRoom(r.id)}
-                    disabled={!!mySeatId && !active}
-                    style={{
-                      display:'flex',alignItems:'center',gap:5,padding:'4px 10px',borderRadius:16,fontSize:11,fontWeight:700,
-                      cursor: mySeatId && !active ? 'not-allowed' : 'pointer',
-                      transition:'all 0.15s',
-                      background: active ? 'rgba(124,58,237,0.15)' : 'rgba(255,255,255,0.03)',
-                      border: active ? '1px solid rgba(124,58,237,0.35)' : '1px solid rgba(255,255,255,0.07)',
-                      color: active ? '#a78bfa' : '#475569',
-                      opacity: mySeatId && !active ? 0.5 : 1,
-                    }}>
-                    <span>Sala {r.id}</span>
-                    <span style={{
-                      background: active ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.06)',
-                      padding:'1px 5px',borderRadius:10,fontSize:9,fontWeight:800,
-                      color: active ? '#c4b5fd' : '#64748b',
-                    }}>{r.online}/{r.capacity}</span>
-                  </button>
-                )
-              })}
-            </div>
-          )}
           <button onClick={cycleAmbient} style={{display:'flex',alignItems:'center',gap:6,padding:'5px 12px',borderRadius:20,background:ambientMode.id!=='off'?'rgba(99,102,241,0.12)':'rgba(255,255,255,0.03)',border:ambientMode.id!=='off'?'1px solid rgba(99,102,241,0.28)':'1px solid rgba(255,255,255,0.07)',color:ambientMode.id!=='off'?'#818cf8':'#475569',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all 0.2s'}}>
             <span style={{fontSize:13}}>{ambientMode.icon}</span>
             <span>{ambientMode.label}</span>

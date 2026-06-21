@@ -11,67 +11,13 @@ const WS_URL = API_BASE
 
 export function useStudyRoom() {
   const { user } = useAuth()
-  const [currentRoomId, setCurrentRoomId] = useState(null)
   const [roomState, setRoomState] = useState({ seats: {}, totalOnline: 0 })
-  const [rooms, setRooms] = useState([])
   const [connected, setConnected] = useState(false)
   const [chatMessages, setChatMessages] = useState([])
   const clientRef = useRef(null)
-  const subsRef = useRef([])
   const recentSentRef = useRef([])
 
-  const subscribeToRoom = useCallback((client, roomId) => {
-    // Unsubscribe from previous room
-    subsRef.current.forEach(s => { try { s.unsubscribe() } catch {} })
-    subsRef.current = []
-
-    const sub1 = client.subscribe(`/topic/study-room/${roomId}`, (msg) => {
-      try { setRoomState(JSON.parse(msg.body)) } catch {}
-    })
-
-    const sub2 = client.subscribe(`/topic/study-room/${roomId}/chat`, (msg) => {
-      try {
-        const m = JSON.parse(msg.body)
-        const now = Date.now()
-        const idx = recentSentRef.current.findIndex(
-          r => r.userId === m.userId && r.text === m.text && (now - r.at) < 10000
-        )
-        if (idx >= 0) {
-          recentSentRef.current.splice(idx, 1)
-          return
-        }
-        recentSentRef.current = recentSentRef.current.filter(r => (now - r.at) < 10000)
-        setChatMessages(prev => [...prev.slice(-199), m])
-      } catch (e) {
-        console.error('[chat subscription error]', e)
-      }
-    })
-
-    const sub3 = client.subscribe('/topic/study-room/rooms', (msg) => {
-      try { setRooms(JSON.parse(msg.body)) } catch {}
-    })
-
-    subsRef.current = [sub1, sub2, sub3]
-  }, [])
-
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) return
-
-    // Fetch initial state to know which room to join
-    api.get('/study-room').then(r => {
-      const data = r.data
-      const roomId = data.roomId || 1
-      setCurrentRoomId(roomId)
-      setRoomState(data.room || { seats: {}, totalOnline: 0 })
-      setRooms(data.rooms || [])
-    }).catch(() => {
-      setCurrentRoomId(1)
-    })
-  }, [])
-
-  useEffect(() => {
-    if (currentRoomId == null) return
     const token = localStorage.getItem('token')
     if (!token) return
 
@@ -81,9 +27,27 @@ export function useStudyRoom() {
       reconnectDelay: 4000,
       onConnect: () => {
         setConnected(true)
-        subscribeToRoom(client, currentRoomId)
-        // Fetch fresh state for the room
-        api.get(`/study-room/${currentRoomId}`).then(r => setRoomState(r.data)).catch(() => {})
+        client.subscribe('/topic/study-room', (msg) => {
+          try { setRoomState(JSON.parse(msg.body)) } catch {}
+        })
+        client.subscribe('/topic/study-room/chat', (msg) => {
+          try {
+            const m = JSON.parse(msg.body)
+            const now = Date.now()
+            const idx = recentSentRef.current.findIndex(
+              r => r.userId === m.userId && r.text === m.text && (now - r.at) < 10000
+            )
+            if (idx >= 0) {
+              recentSentRef.current.splice(idx, 1)
+              return
+            }
+            recentSentRef.current = recentSentRef.current.filter(r => (now - r.at) < 10000)
+            setChatMessages(prev => [...prev.slice(-199), m])
+          } catch (e) {
+            console.error('[chat subscription error]', e)
+          }
+        })
+        api.get('/study-room').then(r => setRoomState(r.data)).catch(() => {})
       },
       onDisconnect: () => setConnected(false),
       onStompError: (frame) => { console.error('[stomp error]', frame); setConnected(false) },
@@ -91,21 +55,14 @@ export function useStudyRoom() {
     client.activate()
     clientRef.current = client
     return () => { client.deactivate() }
-  }, [currentRoomId, subscribeToRoom])
-
-  const switchRoom = useCallback((roomId) => {
-    if (roomId === currentRoomId) return
-    setChatMessages([])
-    setRoomState({ seats: {}, totalOnline: 0 })
-    setCurrentRoomId(roomId)
-  }, [currentRoomId])
+  }, [])
 
   const sit = useCallback((seatId, subjectName, status) => {
     clientRef.current?.publish({
       destination: '/app/room.sit',
-      body: JSON.stringify({ roomId: currentRoomId, seatId, subjectName: subjectName || null, status: status || null }),
+      body: JSON.stringify({ seatId, subjectName: subjectName || null, status: status || null }),
     })
-  }, [currentRoomId])
+  }, [])
 
   const updateSeat = useCallback((subjectName, status) => {
     clientRef.current?.publish({
@@ -141,9 +98,5 @@ export function useStudyRoom() {
     ? Object.entries(roomState.seats).find(([, occ]) => occ.userId === user.id)?.[0] ?? null
     : null
 
-  return {
-    currentRoomId, rooms, roomState, connected, mySeatId,
-    sit, updateSeat, leave, switchRoom,
-    chatMessages, sendMessage,
-  }
+  return { roomState, connected, mySeatId, sit, updateSeat, leave, chatMessages, sendMessage }
 }

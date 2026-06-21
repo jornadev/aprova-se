@@ -10,6 +10,7 @@ import Modal from '../components/ui/Modal'
 import Input from '../components/ui/Input'
 import { simulationApi, subjectApi } from '../services/api'
 import { useToast } from '../context/ToastContext'
+import { useTheme } from '../context/ThemeContext'
 
 const scoreColor = pct => pct >= 70 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444'
 
@@ -40,23 +41,23 @@ function SubjectBar({ result, subject }) {
   return (
     <div className="flex items-center gap-3">
       <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: subject?.color || '#475569' }} />
-      <span className="text-xs text-slate-400 w-40 truncate flex-shrink-0">{subject?.name || 'Desconhecida'}</span>
-      <div className="flex-1 bg-slate-700 rounded-full h-1.5 min-w-0">
+      <span className="text-xs w-40 truncate flex-shrink-0" style={{ color: 'var(--text-fad)' }}>{subject?.name || 'Desconhecida'}</span>
+      <div className="flex-1 rounded-full h-1.5 min-w-0" style={{ background: 'var(--bdr)' }}>
         <div className="h-1.5 rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: color }} />
       </div>
-      <span className="text-xs text-slate-500 flex-shrink-0 w-12 text-right">{result.correct}/{result.total}</span>
+      <span className="text-xs flex-shrink-0 w-12 text-right" style={{ color: 'var(--text-mut)' }}>{result.correct}/{result.total}</span>
       <span className="text-xs font-semibold flex-shrink-0 w-9 text-right" style={{ color }}>{pct}%</span>
     </div>
   )
 }
 
 function StatCard({ label, value, trend, color = false }) {
-  const displayColor = color && value !== null ? scoreColor(value) : '#e2e8f0'
+  const displayColor = color && value !== null ? scoreColor(value) : 'var(--text)'
   const trendColor = trend > 0 ? '#22c55e' : trend < 0 ? '#ef4444' : '#64748b'
   const trendArrow = trend > 0 ? '↑' : trend < 0 ? '↓' : '→'
   return (
     <Card className="flex flex-col justify-between">
-      <p className="text-xs text-slate-400 uppercase tracking-wide">{label}</p>
+      <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--text-fad)' }}>{label}</p>
       <div className="flex items-end justify-between mt-2">
         <p className="text-3xl font-bold" style={{ color: displayColor }}>
           {value !== null && value !== undefined ? (color ? `${value}%` : value) : '--'}
@@ -71,7 +72,7 @@ function StatCard({ label, value, trend, color = false }) {
   )
 }
 
-function SimCard({ sim, results, subjects, onAddResult, onDelete, expanded, onToggle }) {
+function SimCard({ sim, results, subjects, onAddResult, onDelete, expanded, onToggle, isDark }) {
   const subjectMap = subjects.reduce((m, s) => { m[s.id] = s; return m }, {})
   const overall = calcOverall(results)
 
@@ -85,14 +86,14 @@ function SimCard({ sim, results, subjects, onAddResult, onDelete, expanded, onTo
   })
 
   return (
-    <div className="bg-[#1e293b] rounded-xl border border-slate-700/50 overflow-hidden">
+    <div className="rounded-xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--bdr-md)' }}>
       {/* Header row */}
       <div className="flex items-center gap-4 px-5 py-4">
         <ScoreRing pct={overall} />
 
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-white">{sim.name}</p>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="font-semibold" style={{ color: 'var(--text)' }}>{sim.name}</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-mut)' }}>
             {sim.examDate ? `Prova: ${new Date(sim.examDate + 'T00:00:00').toLocaleDateString('pt-BR')} · ` : ''}
             {new Date(sim.createdAt).toLocaleDateString('pt-BR')}
             {results.length > 0 && ` · ${results.length} disciplina${results.length !== 1 ? 's' : ''}`}
@@ -109,14 +110,16 @@ function SimCard({ sim, results, subjects, onAddResult, onDelete, expanded, onTo
           {results.length > 0 && (
             <button
               onClick={() => onToggle(sim.id)}
-              className="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200 text-xs transition-colors"
+              className="px-3 py-1.5 rounded-lg text-xs transition-colors"
+              style={{ border: '1px solid var(--bdr-md)', color: 'var(--text-fad)' }}
             >
               {expanded ? 'Fechar' : 'Gráfico'}
             </button>
           )}
           <button
             onClick={() => onDelete(sim.id)}
-            className="w-7 h-7 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-colors"
+            className="w-7 h-7 rounded-lg hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-colors"
+            style={{ color: 'var(--text-ghost)' }}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" className="w-3.5 h-3.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
@@ -125,7 +128,7 @@ function SimCard({ sim, results, subjects, onAddResult, onDelete, expanded, onTo
 
       {/* Mini bars — collapsed view */}
       {!expanded && results.length > 0 && (
-        <div className="px-5 pb-4 pt-1 border-t border-slate-800 space-y-2.5">
+        <div className="px-5 pb-4 pt-1 space-y-2.5" style={{ borderTop: '1px solid var(--bdr)' }}>
           {results.map(r => (
             <SubjectBar key={r.id} result={r} subject={subjectMap[r.subject?.id]} />
           ))}
@@ -134,9 +137,9 @@ function SimCard({ sim, results, subjects, onAddResult, onDelete, expanded, onTo
 
       {/* Expanded — bar chart + bars */}
       {expanded && (
-        <div className="border-t border-slate-700/50 px-5 py-4 space-y-5">
+        <div className="px-5 py-4 space-y-5" style={{ borderTop: '1px solid var(--bdr)' }}>
           <div>
-            <p className="text-xs text-slate-500 uppercase tracking-wider mb-3">Desempenho por disciplina</p>
+            <p className="text-xs uppercase tracking-wider mb-3" style={{ color: 'var(--text-mut)' }}>Desempenho por disciplina</p>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={chartData} margin={{ top: 20, right: 4, left: -20, bottom: 24 }}>
                 <defs>
@@ -144,16 +147,16 @@ function SimCard({ sim, results, subjects, onAddResult, onDelete, expanded, onTo
                     <path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" stroke="#ef4444" strokeWidth="0.4" opacity="0.3"/>
                   </pattern>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e3a5f22" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1e3a5f22' : '#00000008'} vertical={false} />
                 <ReferenceArea y1={0} y2={50} fill="#ef4444" fillOpacity={0.04} />
                 <ReferenceArea y1={50} y2={70} fill="#f59e0b" fillOpacity={0.04} />
                 <ReferenceArea y1={70} y2={100} fill="#22c55e" fillOpacity={0.04} />
-                <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} angle={-20} textAnchor="end" interval={0} />
-                <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={v => `${v}%`} />
+                <XAxis dataKey="name" tick={{ fill: isDark ? '#94a3b8' : '#64748b', fontSize: 10 }} angle={-20} textAnchor="end" interval={0} />
+                <YAxis domain={[0, 100]} tick={{ fill: isDark ? '#64748b' : '#94a3b8', fontSize: 10 }} tickFormatter={v => `${v}%`} />
                 <Tooltip
-                  contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: 8, fontSize: 12 }}
+                  contentStyle={{ background: isDark ? '#0f172a' : '#ffffff', border: `1px solid ${isDark ? '#334155' : '#e2e8f0'}`, borderRadius: 8, fontSize: 12, color: isDark ? '#e2e8f0' : '#1e293b' }}
                   formatter={v => [`${v}%`, 'Aproveitamento']}
-                  cursor={{ fill: '#ffffff08' }}
+                  cursor={{ fill: isDark ? '#ffffff08' : '#00000008' }}
                 />
                 <ReferenceLine
                   y={70}
@@ -186,8 +189,8 @@ function SimCard({ sim, results, subjects, onAddResult, onDelete, expanded, onTo
       )}
 
       {results.length === 0 && (
-        <div className="border-t border-slate-800 px-5 py-4">
-          <p className="text-slate-600 text-xs text-center">Clique em "+ Resultado" para registrar o desempenho por disciplina.</p>
+        <div className="px-5 py-4" style={{ borderTop: '1px solid var(--bdr)' }}>
+          <p className="text-xs text-center" style={{ color: 'var(--text-ghost)' }}>Clique em "+ Resultado" para registrar o desempenho por disciplina.</p>
         </div>
       )}
     </div>
@@ -197,7 +200,7 @@ function SimCard({ sim, results, subjects, onAddResult, onDelete, expanded, onTo
 const CustomLegend = ({ payload }) => (
   <div className="flex flex-wrap gap-x-4 gap-y-1 justify-center mt-2">
     {payload.map((entry, i) => (
-      <span key={i} className="flex items-center gap-1.5 text-xs text-slate-400">
+      <span key={i} className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-fad)' }}>
         <span className="inline-block w-3 h-0.5 rounded" style={{ background: entry.color }} />
         {entry.value}
       </span>
@@ -318,15 +321,21 @@ export default function Simulations() {
     ? Math.round((+resultForm.correct / +resultForm.total) * 100)
     : null
 
-  if (loading) return <div className="text-slate-400 animate-pulse">Carregando simulados...</div>
+  const { isDark } = useTheme()
+
+  if (loading) return (
+    <div className="flex items-center gap-1.5 py-20 justify-center">
+      {[0,1,2].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-bounce" style={{ animationDelay: `${i*0.15}s` }}/>)}
+    </div>
+  )
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Simulados</h1>
-          <p className="text-slate-400 text-sm">Registre suas provas e acompanhe a evolução</p>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>Simulados</h1>
+          <p className="text-sm" style={{ color: 'var(--text-fad)' }}>Registre suas provas e acompanhe a evolução</p>
         </div>
         <Button onClick={() => setCreateModal(true)}>+ Novo Simulado</Button>
       </div>
@@ -343,7 +352,7 @@ export default function Simulations() {
 
           {/* Overall evolution chart */}
           <Card>
-            <p className="text-xs text-slate-400 uppercase tracking-wide mb-4">Evolução geral</p>
+            <p className="text-xs uppercase tracking-wide mb-4" style={{ color: 'var(--text-fad)' }}>Evolução geral</p>
             {overalls.length >= 2 ? (
               <ResponsiveContainer width="100%" height={180}>
                 <AreaChart data={overalls} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
@@ -353,14 +362,14 @@ export default function Simulations() {
                       <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={v => `${v}%`} axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1e293b' : '#e2e8f0'} vertical={false} />
+                  <XAxis dataKey="name" tick={{ fill: isDark ? '#64748b' : '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis domain={[0, 100]} tick={{ fill: isDark ? '#64748b' : '#94a3b8', fontSize: 10 }} tickFormatter={v => `${v}%`} axisLine={false} tickLine={false} />
                   <Tooltip
-                    contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 8, fontSize: 12 }}
+                    contentStyle={{ background: isDark ? '#0f172a' : '#ffffff', border: `1px solid ${isDark ? '#1e293b' : '#e2e8f0'}`, borderRadius: 8, fontSize: 12, color: isDark ? '#e2e8f0' : '#1e293b' }}
                     formatter={v => [`${v}%`, 'Aproveitamento']}
-                    labelStyle={{ color: '#64748b' }}
-                    cursor={{ stroke: '#334155', strokeWidth: 1 }}
+                    labelStyle={{ color: isDark ? '#64748b' : '#94a3b8' }}
+                    cursor={{ stroke: isDark ? '#334155' : '#cbd5e1', strokeWidth: 1 }}
                   />
                   <Area
                     type="natural"
@@ -368,14 +377,14 @@ export default function Simulations() {
                     stroke="#7c3aed"
                     strokeWidth={2}
                     fill="url(#gradOverall)"
-                    dot={{ r: 3, fill: '#7c3aed', stroke: '#0f172a', strokeWidth: 2 }}
-                    activeDot={{ r: 5, fill: '#7c3aed', stroke: '#0f172a', strokeWidth: 2 }}
+                    dot={{ r: 3, fill: '#7c3aed', stroke: isDark ? '#0f172a' : '#ffffff', strokeWidth: 2 }}
+                    activeDot={{ r: 5, fill: '#7c3aed', stroke: isDark ? '#0f172a' : '#ffffff', strokeWidth: 2 }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
               <div className="h-36 flex items-center justify-center">
-                <p className="text-slate-600 text-sm text-center">
+                <p className="text-sm text-center" style={{ color: 'var(--text-ghost)' }}>
                   {overalls.length === 0
                     ? 'Adicione resultados aos simulados para ver a evolução.'
                     : 'O gráfico aparece a partir do 2º simulado com resultados.'}
@@ -387,17 +396,17 @@ export default function Simulations() {
           {/* Per-subject evolution */}
           {simsWithResults.length >= 2 && subjectNamesForChart.length > 0 && (
             <Card>
-              <p className="text-xs text-slate-400 uppercase tracking-wide mb-4">Evolução por disciplina</p>
+              <p className="text-xs uppercase tracking-wide mb-4" style={{ color: 'var(--text-fad)' }}>Evolução por disciplina</p>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={subjectEvolutionData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={v => `${v}%`} axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1e293b' : '#e2e8f0'} vertical={false} />
+                  <XAxis dataKey="name" tick={{ fill: isDark ? '#64748b' : '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis domain={[0, 100]} tick={{ fill: isDark ? '#64748b' : '#94a3b8', fontSize: 10 }} tickFormatter={v => `${v}%`} axisLine={false} tickLine={false} />
                   <Tooltip
-                    contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 8, fontSize: 12 }}
+                    contentStyle={{ background: isDark ? '#0f172a' : '#ffffff', border: `1px solid ${isDark ? '#1e293b' : '#e2e8f0'}`, borderRadius: 8, fontSize: 12, color: isDark ? '#e2e8f0' : '#1e293b' }}
                     formatter={(v, name) => [`${v}%`, name]}
-                    labelStyle={{ color: '#64748b' }}
-                    cursor={{ stroke: '#334155', strokeWidth: 1 }}
+                    labelStyle={{ color: isDark ? '#64748b' : '#94a3b8' }}
+                    cursor={{ stroke: isDark ? '#334155' : '#cbd5e1', strokeWidth: 1 }}
                   />
                   <Legend content={<CustomLegend />} />
                   {subjectNamesForChart.map((name, i) => {
@@ -409,8 +418,8 @@ export default function Simulations() {
                         dataKey={name}
                         stroke={color}
                         strokeWidth={2}
-                        dot={{ r: 3, fill: color, stroke: '#0f172a', strokeWidth: 2 }}
-                        activeDot={{ r: 5, fill: color, stroke: '#0f172a', strokeWidth: 2 }}
+                        dot={{ r: 3, fill: color, stroke: isDark ? '#0f172a' : '#ffffff', strokeWidth: 2 }}
+                        activeDot={{ r: 5, fill: color, stroke: isDark ? '#0f172a' : '#ffffff', strokeWidth: 2 }}
                         connectNulls
                       />
                     )
@@ -434,13 +443,18 @@ export default function Simulations() {
             onDelete={handleDelete}
             expanded={expandedId === sim.id}
             onToggle={id => setExpandedId(prev => prev === id ? null : id)}
+            isDark={isDark}
           />
         ))}
 
         {simulations.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-slate-400 font-medium">Nenhum simulado registrado ainda</p>
-            <p className="text-slate-600 text-sm mt-1">Clique em "+ Novo Simulado" para começar</p>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--text-ghost)' }}>
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" strokeLinecap="round"/>
+              <rect x="9" y="3" width="6" height="4" rx="1"/>
+            </svg>
+            <p className="font-medium" style={{ color: 'var(--text-3)' }}>Nenhum simulado registrado ainda</p>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-mut)' }}>Clique em "+ Novo Simulado" para começar a acompanhar sua evolução.</p>
           </div>
         )}
       </div>
@@ -476,11 +490,12 @@ export default function Simulations() {
       >
         <div className="space-y-4">
           <div>
-            <label className="text-sm text-slate-400 mb-1 block">Disciplina</label>
+            <label className="text-sm mb-1 block" style={{ color: 'var(--text-fad)' }}>Disciplina</label>
             <select
               value={resultForm.subjectId}
               onChange={e => setResultForm(f => ({ ...f, subjectId: e.target.value }))}
-              className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className="w-full rounded-xl px-3.5 py-2.5 text-sm transition-colors"
+              style={{ background: 'var(--bg-elev)', border: '1px solid var(--bdr-md)', color: 'var(--text)' }}
               autoFocus
             >
               <option value="">Selecione a disciplina...</option>
@@ -509,10 +524,10 @@ export default function Simulations() {
 
           {/* Preview do aproveitamento */}
           {previewPct !== null && (
-            <div className="flex items-center justify-between bg-slate-800 rounded-xl px-4 py-3">
+            <div className="flex items-center justify-between rounded-xl px-4 py-3" style={{ background: 'var(--bg-elev)' }}>
               <div>
-                <p className="text-xs text-slate-500">Aproveitamento</p>
-                <div className="w-32 bg-slate-700 rounded-full h-1.5 mt-1.5">
+                <p className="text-xs" style={{ color: 'var(--text-mut)' }}>Aproveitamento</p>
+                <div className="w-32 rounded-full h-1.5 mt-1.5" style={{ background: 'var(--bdr)' }}>
                   <div
                     className="h-1.5 rounded-full transition-all duration-300"
                     style={{ width: `${previewPct}%`, background: scoreColor(previewPct) }}

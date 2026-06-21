@@ -38,8 +38,15 @@ public class WeeklyPlanService {
     }
 
     public WeeklyPlan create(WeeklyPlan plan, User user) {
+        if (plan.getDayOfWeek() == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dia da semana é obrigatório");
+        if (plan.getSubject() == null || plan.getSubject().getId() == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Disciplina é obrigatória");
+        if (plan.getTargetMinutes() == null || plan.getTargetMinutes() < 15)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Duração mínima é 15 minutos");
+
         Subject subject = subjectRepository.findById(plan.getSubject().getId())
-            .orElseThrow(() -> new RuntimeException("Subject not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Disciplina não encontrada"));
         plan.setSubject(subject);
         plan.setUser(user);
         return planRepository.save(plan);

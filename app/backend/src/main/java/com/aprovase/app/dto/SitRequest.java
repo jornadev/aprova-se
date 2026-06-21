@@ -1,3 +1,3 @@
 package com.aprovase.app.dto;
 
-public record SitRequest(int roomId, String seatId, String subjectName, String status) {}
+public record SitRequest(String seatId, String subjectName, String status) {}

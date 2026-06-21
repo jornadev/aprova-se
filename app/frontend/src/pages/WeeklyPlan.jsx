@@ -74,7 +74,7 @@ function AddModal({ open, defaultDay, subjects, onSave, onClose }) {
             <select
               value={subjectId}
               onChange={e => setSubject(e.target.value)}
-              className="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-violet-500 transition-colors"
+              className="w-full rounded-xl px-3.5 py-2.5 text-sm transition-colors"
               style={{ background: 'var(--bg-elev)', border: '1px solid var(--bdr-md)', color: 'var(--text)' }}
             >
               <option value="">Selecione...</option>

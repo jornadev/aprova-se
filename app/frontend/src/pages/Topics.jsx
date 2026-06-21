@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import { examPlanApi, topicApi } from '../services/api'
+import { examPlanApi, topicApi, noteApi } from '../services/api'
 import EditalImportModal from '../components/EditalImportModal'
+import Modal from '../components/ui/Modal'
+import Button from '../components/ui/Button'
 import { useToast } from '../context/ToastContext'
 
 const STATUS_CYCLE = ['NOT_STUDIED', 'STUDIED', 'MASTERED']
@@ -18,7 +20,7 @@ const COLORS = ['#ef4444', '#f97316', '#f59e0b', '#22c55e', '#06b6d4', '#3b82f6'
 
 // ─── TopicRow ────────────────────────────────────────────────────────────────
 
-function TopicRow({ topic, onStatusChange, editMode, onDelete, onRename }) {
+function TopicRow({ topic, onStatusChange, editMode, onDelete, onRename, onOpenNotes }) {
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(topic.title)
   const inputRef = useRef(null)
@@ -90,11 +92,20 @@ function TopicRow({ topic, onStatusChange, editMode, onDelete, onRename }) {
         </span>
       )}
 
-      {/* Status label on hover (non-edit) */}
+      {/* Notes + Status label on hover (non-edit) */}
       {!editMode && (
-        <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: STATUS_COLOR[topic.status] }}>
-          {STATUS_LABEL[topic.status]}
-        </span>
+        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button onClick={() => onOpenNotes(topic)} title="Anotações"
+            className="w-6 h-6 flex items-center justify-center rounded hover:bg-violet-500/15 transition-colors"
+            style={{ color: 'var(--text-mut)' }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+          <span className="text-xs" style={{ color: STATUS_COLOR[topic.status] }}>
+            {STATUS_LABEL[topic.status]}
+          </span>
+        </div>
       )}
 
       {/* Edit mode actions */}
@@ -163,7 +174,7 @@ function NewTopicInput({ subjectId, onCreated }) {
 
 // ─── SubjectAccordion ─────────────────────────────────────────────────────────
 
-function SubjectAccordion({ subjectData, onTopicStatusChange, forceOpen, editMode, onReload }) {
+function SubjectAccordion({ subjectData, onTopicStatusChange, forceOpen, editMode, onReload, onOpenNotes }) {
   const [open, setOpen] = useState(false)
   const [editingName, setEditingName] = useState(false)
   const [nameValue, setNameValue] = useState(subjectData.name)
@@ -333,6 +344,7 @@ function SubjectAccordion({ subjectData, onTopicStatusChange, forceOpen, editMod
                   editMode={editMode}
                   onDelete={handleDeleteTopic}
                   onRename={handleRenameTopic}
+                  onOpenNotes={onOpenNotes}
                 />
               ))
           }
@@ -526,6 +538,80 @@ function CreateFromScratch({ onCreate, onCancel }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
+function ImportTutorial() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--bdr-md)' }}>
+      <button onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-5 py-3.5 transition-colors text-left"
+        style={{ background: 'var(--row-bg)' }}
+        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-elev)'}
+        onMouseLeave={e => e.currentTarget.style.background = 'var(--row-bg)'}>
+        <div className="flex items-center gap-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 flex-shrink-0" style={{ color: '#a78bfa' }}>
+            <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span className="text-sm font-medium" style={{ color: 'var(--text-2)' }}>Como importar um edital?</span>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
+          className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} style={{ color: 'var(--text-mut)' }}>
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+
+      {open && (
+        <div className="px-5 py-4 space-y-4" style={{ background: 'var(--row-bg)', borderTop: '1px solid var(--bdr)' }}>
+          <div className="flex gap-3">
+            <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white" style={{ background: '#7c3aed' }}>1</div>
+            <div>
+              <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>Acesse o edital do seu concurso</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-mut)' }}>
+                Abra o PDF do edital no site da banca organizadora (CESPE, FCC, VUNESP, etc.) ou em sites como PCI Concursos, JC Concursos.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white" style={{ background: '#7c3aed' }}>2</div>
+            <div>
+              <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>Encontre o "Conteúdo Programático"</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-mut)' }}>
+                No edital, procure a seção chamada "Conteúdo Programático", "Conhecimentos Básicos" ou "Conhecimentos Específicos". Geralmente fica no anexo do edital.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white" style={{ background: '#7c3aed' }}>3</div>
+            <div>
+              <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>Copie todo o texto</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-mut)' }}>
+                Selecione todo o conteúdo programático (Ctrl+A no trecho ou selecione com o mouse) e copie (Ctrl+C). Inclua todas as disciplinas e seus tópicos.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white" style={{ background: '#7c3aed' }}>4</div>
+            <div>
+              <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>Cole aqui e deixe a IA organizar</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-mut)' }}>
+                Clique em <strong>"+ Criar edital"</strong>, selecione <strong>"Analisar com IA"</strong> e cole o texto copiado. Nossa inteligência artificial vai separar automaticamente as disciplinas e tópicos pra você.
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-xl p-3" style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.12)' }}>
+            <p className="text-xs" style={{ color: 'var(--text-3)' }}>
+              <strong style={{ color: '#a78bfa' }}>Dica:</strong> Não precisa formatar nada. Pode colar o texto cru do PDF — com numerações, quebras de linha, etc. A IA entende e organiza tudo automaticamente.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Topics() {
   const toast = useToast()
   const [available, setAvailable] = useState([])
@@ -537,6 +623,44 @@ export default function Topics() {
   const [filterStatus, setFilterStatus] = useState('ALL')
   const [editMode, setEditMode] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
+  const [noteTopic, setNoteTopic] = useState(null)
+  const [notes, setNotes] = useState([])
+  const [noteForm, setNoteForm] = useState({ title: '', content: '' })
+  const [noteSaving, setNoteSaving] = useState(false)
+
+  const handleOpenNotes = async (topic) => {
+    setNoteTopic(topic)
+    setNoteForm({ title: '', content: '' })
+    try {
+      const n = await noteApi.getAll({ topicId: topic.id })
+      setNotes(n || [])
+    } catch { setNotes([]) }
+  }
+
+  const handleSaveNote = async () => {
+    if (!noteForm.title.trim()) return
+    setNoteSaving(true)
+    try {
+      await noteApi.create({
+        topic: { id: noteTopic.id },
+        subject: noteTopic.subject || { id: noteTopic.subject?.id },
+        title: noteForm.title,
+        content: noteForm.content,
+      })
+      setNoteForm({ title: '', content: '' })
+      const n = await noteApi.getAll({ topicId: noteTopic.id })
+      setNotes(n || [])
+      toast.success('Anotação salva!')
+    } catch { toast.error('Erro ao salvar anotação.') }
+    finally { setNoteSaving(false) }
+  }
+
+  const handleDeleteNote = async (id) => {
+    try {
+      await noteApi.delete(id)
+      setNotes(notes.filter(n => n.id !== id))
+    } catch { toast.error('Erro ao excluir anotação.') }
+  }
 
   useEffect(() => { loadAvailable() }, [])
 
@@ -683,12 +807,20 @@ export default function Topics() {
         </button>
       </div>
 
+      {/* ── Tutorial ── */}
+      <ImportTutorial />
+
       {/* ── Plan list ── */}
       {available.length === 0 && (
-        <div className="text-center py-20">
+        <div className="text-center py-16">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"
+            className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--text-ghost)' }}>
+            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+            <rect x="9" y="3" width="6" height="4" rx="1"/>
+          </svg>
           <p className="font-semibold" style={{ color: 'var(--text-3)' }}>Nenhum edital cadastrado</p>
-          <p className="text-sm mt-2" style={{ color: 'var(--text-mut)' }}>
-            Clique em "+ Criar edital" para adicionar as disciplinas e tópicos do seu concurso.
+          <p className="text-sm mt-1" style={{ color: 'var(--text-mut)' }}>
+            Clique em "+ Criar edital" e siga o tutorial acima para importar o conteúdo do seu concurso.
           </p>
         </div>
       )}
@@ -786,7 +918,7 @@ export default function Topics() {
                     <p className="text-xs" style={{ color: 'var(--text-mut)' }}>{totalFiltered} tópico{totalFiltered !== 1 ? 's' : ''} encontrado{totalFiltered !== 1 ? 's' : ''}</p>
                   )}
                   {displaySubjects.map(s => (
-                    <SubjectAccordion key={s.id} subjectData={s} onTopicStatusChange={handleTopicStatusChange} forceOpen={isFiltering || editMode} editMode={editMode} onReload={reloadPlan} />
+                    <SubjectAccordion key={s.id} subjectData={s} onTopicStatusChange={handleTopicStatusChange} forceOpen={isFiltering || editMode} editMode={editMode} onReload={reloadPlan} onOpenNotes={handleOpenNotes} />
                   ))}
                   {editMode && <NewSubjectInput planId={expandedPlanId} onCreated={reloadPlan} />}
                   {displaySubjects.length === 0 && !editMode && !isFiltering && (
@@ -812,6 +944,46 @@ export default function Topics() {
       ))}
 
       <EditalImportModal open={importModalOpen} onClose={() => setImportModalOpen(false)} onImported={handleBulkImported} />
+
+      {/* Notes Modal */}
+      <Modal open={!!noteTopic} onClose={() => setNoteTopic(null)} title={`Anotações — ${noteTopic?.title || ''}`}>
+        <div className="space-y-4">
+          {notes.map(n => (
+            <div key={n.id} className="rounded-xl p-3 group" style={{ background: 'var(--bg-elev)', border: '1px solid var(--bdr)' }}>
+              <div className="flex items-start justify-between">
+                <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>{n.title}</p>
+                <button onClick={() => handleDeleteNote(n.id)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ color: 'var(--text-mut)' }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+              {n.content && <p className="text-xs mt-1 whitespace-pre-wrap" style={{ color: 'var(--text-3)' }}>{n.content}</p>}
+              <p className="text-[10px] mt-2" style={{ color: 'var(--text-ghost)' }}>
+                {new Date(n.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+              </p>
+            </div>
+          ))}
+
+          {notes.length === 0 && (
+            <p className="text-center text-xs py-4" style={{ color: 'var(--text-mut)' }}>Nenhuma anotação para este tópico.</p>
+          )}
+
+          <div style={{ borderTop: '1px solid var(--bdr)' }} className="pt-3 space-y-2">
+            <input value={noteForm.title} onChange={e => setNoteForm(f => ({ ...f, title: e.target.value }))}
+              placeholder="Título da anotação..."
+              className="w-full rounded-xl px-3.5 py-2.5 text-sm transition-colors"
+              style={{ background: 'var(--bg-elev)', border: '1px solid var(--bdr-md)', color: 'var(--text)' }} />
+            <textarea value={noteForm.content} onChange={e => setNoteForm(f => ({ ...f, content: e.target.value }))}
+              placeholder="Escreva sua anotação..." rows={3}
+              className="w-full rounded-xl px-3.5 py-2.5 text-sm resize-none transition-colors"
+              style={{ background: 'var(--bg-elev)', border: '1px solid var(--bdr-md)', color: 'var(--text)' }} />
+            <Button onClick={handleSaveNote} disabled={!noteForm.title.trim() || noteSaving} className="w-full">
+              {noteSaving ? 'Salvando...' : 'Salvar anotação'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }
