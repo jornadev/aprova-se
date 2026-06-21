@@ -385,213 +385,248 @@ function SessionBar({ sessionType, phase, seconds, paused, count, onPause, onLea
 
 // ── Character SVG ─────────────────────────────────────────────────
 const SKIN = '#fcd5a5'
+const SKIN_S = '#e4b48a'
 
 function CharacterSVG({ color, size = 50, userId = 0 }) {
   const s = size / 64
   const { hair, hairStyle, glasses } = traitFor(userId)
   return (
     <svg width={64*s} height={68*s} viewBox="0 0 64 68" fill="none">
-      {/* Shadow */}
-      <ellipse cx="32" cy="66" rx="16" ry="3" fill="rgba(0,0,0,0.16)"/>
+      <ellipse cx="32" cy="66" rx="13" ry="2.5" fill="rgba(0,0,0,0.18)"/>
 
-      {/* Body (shirt in user color) */}
-      <path d="M13 66 L13 44 Q13 36 22 33 L42 33 Q51 36 51 44 L51 66 Z" fill={color}/>
-      {/* V-collar detail */}
-      <path d="M22 33 L32 41 L42 33" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" strokeLinejoin="round"/>
-      {/* Shirt shadow bottom */}
-      <path d="M13 61 Q32 65 51 61 L51 66 L13 66 Z" fill="rgba(0,0,0,0.1)"/>
+      {/* Legs */}
+      <path d="M22 53 L21 61 Q21 63 24 63 L28 63 Q30 63 30 61 L29 53 Z" fill="#2d3748"/>
+      <path d="M34 53 L33 61 Q33 63 36 63 L40 63 Q42 63 42 61 L43 53 Z" fill="#2d3748"/>
+      <path d="M20 61 Q19 66 25 66 L29 66 Q32 66 31 62 Z" fill="#1a2030"/>
+      <path d="M33 61 Q32 66 36 66 L40 66 Q45 66 44 62 Z" fill="#1a2030"/>
+      <path d="M20 62 L31 62" stroke="rgba(255,255,255,0.06)" strokeWidth="0.8"/>
+      <path d="M33 62 L44 62" stroke="rgba(255,255,255,0.06)" strokeWidth="0.8"/>
 
-      {/* Left arm */}
-      <path d="M13 40 Q4 43 3 51 Q3 56 9 56 Q14 56 14 51 Z" fill={color}/>
-      {/* Right arm */}
-      <path d="M51 40 Q60 43 61 51 Q61 56 55 56 Q50 56 50 51 Z" fill={color}/>
-      {/* Hands */}
-      <ellipse cx="6"  cy="56" rx="4.5" ry="3.8" fill={SKIN}/>
-      <ellipse cx="58" cy="56" rx="4.5" ry="3.8" fill={SKIN}/>
+      {/* Body */}
+      <path d="M15 38 Q15 33 24 31 L40 31 Q49 33 49 38 L49 53 Q49 55 44 55 L20 55 Q15 55 15 53 Z" fill={color}/>
+      <path d="M15 48 Q32 53 49 48 L49 53 Q49 55 44 55 L20 55 Q15 55 15 53 Z" fill="rgba(0,0,0,0.08)"/>
+      <path d="M26 31 L32 37 L38 31" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.3" strokeLinejoin="round"/>
+
+      {/* Arms */}
+      <path d="M15 38 Q10 41 8 47 Q7 51 9 54" stroke={color} strokeWidth="7" strokeLinecap="round" fill="none"/>
+      <path d="M15 38 Q10 41 8 47 Q7 51 9 54" stroke="rgba(0,0,0,0.06)" strokeWidth="7" strokeLinecap="round" fill="none"/>
+      <path d="M49 38 Q54 41 56 47 Q57 51 55 54" stroke={color} strokeWidth="7" strokeLinecap="round" fill="none"/>
+      <circle cx="9" cy="55" r="3.5" fill={SKIN}/>
+      <circle cx="55" cy="55" r="3.5" fill={SKIN}/>
 
       {/* Neck */}
-      <rect x="26" y="27" width="12" height="9" rx="4.5" fill={SKIN}/>
+      <rect x="27" y="27" width="10" height="6" rx="4" fill={SKIN}/>
+      <path d="M27 31 Q32 33 37 31 L37 33 L27 33 Z" fill="rgba(0,0,0,0.05)"/>
 
       {/* Head */}
-      <ellipse cx="32" cy="17" rx="20" ry="20" fill={SKIN}/>
+      <ellipse cx="32" cy="17" rx="14" ry="15" fill={SKIN}/>
+      <ellipse cx="32" cy="22" rx="10" ry="7" fill="rgba(0,0,0,0.02)"/>
 
-      {/* Hair — 4 distinct styles */}
+      {/* Hair */}
       {hairStyle === 0 && <>
-        {/* Short neat bowl cut */}
-        <ellipse cx="32" cy="3"  rx="20" ry="12" fill={hair}/>
-        <rect    x="12" y="3"   width="40" height="14" fill={hair}/>
-        <ellipse cx="11" cy="18" rx="6"  ry="12" fill={hair}/>
-        <ellipse cx="53" cy="18" rx="6"  ry="12" fill={hair}/>
-        <path d="M13 7 Q20 1 32 0 Q44 1 51 7 Q48 15 32 14 Q16 15 13 7 Z" fill={hair}/>
+        <ellipse cx="32" cy="5" rx="15" ry="9" fill={hair}/>
+        <rect x="17" y="5" width="30" height="8" fill={hair}/>
+        <path d="M17 13 L17 20 Q18 19 18 16 Z" fill={hair}/>
+        <path d="M47 13 L47 20 Q46 19 46 16 Z" fill={hair}/>
+        <path d="M20 3 Q32 -1 44 3 Q42 7 32 6 Q22 7 20 3 Z" fill="rgba(255,255,255,0.07)"/>
       </>}
       {hairStyle === 1 && <>
-        {/* Long straight (extends past ears) */}
-        <ellipse cx="32" cy="2"  rx="20" ry="11" fill={hair}/>
-        <rect    x="10" y="2"   width="10" height="32" rx="5" fill={hair}/>
-        <rect    x="44" y="2"   width="10" height="32" rx="5" fill={hair}/>
-        <ellipse cx="15" cy="33" rx="7"  ry="5"  fill={hair}/>
-        <ellipse cx="49" cy="33" rx="7"  ry="5"  fill={hair}/>
-        <path d="M11 6 Q20 0 32 0 Q44 0 53 6 Q50 14 32 13 Q14 14 11 6 Z" fill={hair}/>
+        <ellipse cx="32" cy="4" rx="15" ry="9" fill={hair}/>
+        <rect x="16" y="4" width="8" height="28" rx="4" fill={hair}/>
+        <rect x="40" y="4" width="8" height="28" rx="4" fill={hair}/>
+        <ellipse cx="20" cy="31" rx="5" ry="4" fill={hair}/>
+        <ellipse cx="44" cy="31" rx="5" ry="4" fill={hair}/>
+        <path d="M20 3 Q32 -1 44 3 Q42 7 32 6 Q22 7 20 3 Z" fill="rgba(255,255,255,0.07)"/>
       </>}
       {hairStyle === 2 && <>
-        {/* Spiky / energetic */}
-        <ellipse cx="32" cy="5"  rx="19" ry="10" fill={hair}/>
-        <ellipse cx="11" cy="17" rx="5.5" ry="11" fill={hair}/>
-        <ellipse cx="53" cy="17" rx="5.5" ry="11" fill={hair}/>
-        <polygon points="19,10 16,2 23,9"  fill={hair}/>
-        <polygon points="27,8  26,1 32,8"  fill={hair}/>
-        <polygon points="37,8  38,1 44,9"  fill={hair}/>
-        <path d="M12 10 Q20 5 32 5 Q44 5 52 10 Q49 16 32 15 Q15 16 12 10 Z" fill={hair}/>
+        <ellipse cx="32" cy="5" rx="15" ry="9" fill={hair}/>
+        <path d="M17 13 L17 20 Q18 19 18 16 Z" fill={hair}/>
+        <path d="M47 13 L47 20 Q46 19 46 16 Z" fill={hair}/>
+        <path d="M22 7 L19 0 L26 6 Z" fill={hair}/>
+        <path d="M29 5 L28 -2 L34 5 Z" fill={hair}/>
+        <path d="M38 6 L40 0 L44 7 Z" fill={hair}/>
+        <path d="M20 3 Q32 -1 44 3 Q42 7 32 6 Q22 7 20 3 Z" fill="rgba(255,255,255,0.07)"/>
       </>}
       {hairStyle === 3 && <>
-        {/* Wavy / curly */}
-        <path d="M12 14 Q15 2 22 6 Q26 0 32 4 Q38 0 42 6 Q49 2 52 14 Q48 24 32 22 Q16 24 12 14 Z" fill={hair}/>
-        <ellipse cx="10" cy="23" rx="5.5" ry="9" fill={hair}/>
-        <ellipse cx="54" cy="23" rx="5.5" ry="9" fill={hair}/>
+        <path d="M17 16 Q18 2 25 6 Q28 0 32 4 Q36 0 39 6 Q46 2 47 16 Q45 24 32 22 Q19 24 17 16 Z" fill={hair}/>
+        <ellipse cx="16" cy="21" rx="4" ry="7" fill={hair}/>
+        <ellipse cx="48" cy="21" rx="4" ry="7" fill={hair}/>
       </>}
 
       {/* Ears */}
-      <ellipse cx="11" cy="20" rx="4.5" ry="5.5" fill={SKIN}/>
-      <ellipse cx="53" cy="20" rx="4.5" ry="5.5" fill={SKIN}/>
-      <ellipse cx="11" cy="20" rx="2.5" ry="3"   fill="#e8a880" opacity="0.5"/>
-      <ellipse cx="53" cy="20" rx="2.5" ry="3"   fill="#e8a880" opacity="0.5"/>
+      <ellipse cx="18" cy="19" rx="3" ry="4" fill={SKIN}/>
+      <ellipse cx="46" cy="19" rx="3" ry="4" fill={SKIN}/>
+      <ellipse cx="18" cy="19" rx="1.8" ry="2.5" fill={SKIN_S} opacity="0.5"/>
+      <ellipse cx="46" cy="19" rx="1.8" ry="2.5" fill={SKIN_S} opacity="0.5"/>
 
       {/* Eyes */}
-      <ellipse cx="23" cy="18" rx="5.5" ry="6.5" fill="white"/>
-      <ellipse cx="41" cy="18" rx="5.5" ry="6.5" fill="white"/>
-      {/* Pupils */}
-      <circle  cx="23" cy="19" r="3.5" fill="#1a0f08"/>
-      <circle  cx="41" cy="19" r="3.5" fill="#1a0f08"/>
-      {/* Iris tint */}
-      <circle  cx="23" cy="19" r="2.2" fill={color} opacity="0.4"/>
-      <circle  cx="41" cy="19" r="2.2" fill={color} opacity="0.4"/>
-      {/* Shine */}
-      <circle  cx="24.5" cy="17"   r="1.5"  fill="white"/>
-      <circle  cx="42.5" cy="17"   r="1.5"  fill="white"/>
-      <circle  cx="25"   cy="20.5" r="0.65" fill="white" opacity="0.55"/>
-      <circle  cx="43"   cy="20.5" r="0.65" fill="white" opacity="0.55"/>
+      <ellipse cx="25" cy="18" rx="3.8" ry="4.2" fill="white"/>
+      <ellipse cx="39" cy="18" rx="3.8" ry="4.2" fill="white"/>
+      <circle cx="25.5" cy="19" r="2.8" fill="#2d1810"/>
+      <circle cx="39.5" cy="19" r="2.8" fill="#2d1810"/>
+      <circle cx="25.5" cy="19" r="1.8" fill={color} opacity="0.35"/>
+      <circle cx="39.5" cy="19" r="1.8" fill={color} opacity="0.35"/>
+      <circle cx="25.5" cy="19.5" r="1" fill="#080808"/>
+      <circle cx="39.5" cy="19.5" r="1" fill="#080808"/>
+      <circle cx="26.8" cy="17.5" r="1.2" fill="white"/>
+      <circle cx="40.8" cy="17.5" r="1.2" fill="white"/>
+      <circle cx="24.5" cy="20" r="0.5" fill="white" opacity="0.5"/>
+      <circle cx="38.5" cy="20" r="0.5" fill="white" opacity="0.5"/>
 
       {/* Eyebrows */}
-      <path d="M17 10 Q23 8 27 10" stroke={hair} strokeWidth="2"   strokeLinecap="round" fill="none"/>
-      <path d="M37 10 Q41 8 47 10" stroke={hair} strokeWidth="2"   strokeLinecap="round" fill="none"/>
+      <path d="M21 12.5 Q25 10.5 28 12.5" stroke={hair} strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+      <path d="M36 12.5 Q39 10.5 43 12.5" stroke={hair} strokeWidth="1.6" strokeLinecap="round" fill="none"/>
 
       {/* Nose */}
-      <ellipse cx="32" cy="24" rx="2" ry="1.3" fill="#d4946a" opacity="0.45"/>
+      <path d="M31 23 Q32 24.5 33 23" stroke="#c89070" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.5"/>
 
       {/* Smile */}
-      <path d="M25 28 Q32 35 39 28" stroke="#c4785a" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      <path d="M27 26 Q32 30 37 26" stroke="#c4785a" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
 
       {/* Blush */}
-      <ellipse cx="15" cy="24" rx="5.5" ry="3" fill="#f4a0b0" opacity="0.4"/>
-      <ellipse cx="49" cy="24" rx="5.5" ry="3" fill="#f4a0b0" opacity="0.4"/>
+      <ellipse cx="19.5" cy="23" rx="3.5" ry="2" fill="#f4a0b0" opacity="0.28"/>
+      <ellipse cx="44.5" cy="23" rx="3.5" ry="2" fill="#f4a0b0" opacity="0.28"/>
 
-      {/* Optional glasses */}
+      {/* Glasses */}
       {glasses && <>
-        <circle cx="23" cy="18" r="7.5" fill="none" stroke="#5a3a14" strokeWidth="1.4" opacity="0.7"/>
-        <circle cx="41" cy="18" r="7.5" fill="none" stroke="#5a3a14" strokeWidth="1.4" opacity="0.7"/>
-        <line x1="30.5" y1="18" x2="33.5" y2="18" stroke="#5a3a14" strokeWidth="1.4" opacity="0.7"/>
-        <line x1="9"    y1="16" x2="15.5" y2="17.5" stroke="#5a3a14" strokeWidth="1.4" opacity="0.7"/>
-        <line x1="55"   y1="16" x2="48.5" y2="17.5" stroke="#5a3a14" strokeWidth="1.4" opacity="0.7"/>
+        <ellipse cx="25" cy="18" rx="5.5" ry="5" fill="none" stroke="#4a3010" strokeWidth="1.1" opacity="0.65"/>
+        <ellipse cx="39" cy="18" rx="5.5" ry="5" fill="none" stroke="#4a3010" strokeWidth="1.1" opacity="0.65"/>
+        <line x1="30.5" y1="17.5" x2="33.5" y2="17.5" stroke="#4a3010" strokeWidth="1.1" opacity="0.65"/>
+        <line x1="15" y1="17" x2="19.5" y2="17.5" stroke="#4a3010" strokeWidth="1.1" opacity="0.65"/>
+        <line x1="49" y1="17" x2="44.5" y2="17.5" stroke="#4a3010" strokeWidth="1.1" opacity="0.65"/>
       </>}
     </svg>
   )
 }
 
-// Walking version — same as CharacterSVG but with walk animation class
+// Walking version
 function CharacterWalkSVG({ color, userId = 0, size = 54 }) {
   const s = size / 64
   const { hair, hairStyle, glasses } = traitFor(userId)
   return (
     <svg width={64*s} height={68*s} viewBox="0 0 64 68" fill="none" className="walk-anim">
-      <ellipse cx="32" cy="66" rx="16" ry="3" fill="rgba(0,0,0,0.2)"/>
-      <path d="M13 66 L13 44 Q13 36 22 33 L42 33 Q51 36 51 44 L51 66 Z" fill={color}/>
-      <path d="M22 33 L32 41 L42 33" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" strokeLinejoin="round"/>
-      <path d="M13 40 Q4 43 3 51 Q3 56 9 56 Q14 56 14 51 Z" fill={color}/>
-      <path d="M51 40 Q60 43 61 51 Q61 56 55 56 Q50 56 50 51 Z" fill={color}/>
-      <ellipse cx="6"  cy="56" rx="4.5" ry="3.8" fill={SKIN}/>
-      <ellipse cx="58" cy="56" rx="4.5" ry="3.8" fill={SKIN}/>
-      <rect x="26" y="27" width="12" height="9" rx="4.5" fill={SKIN}/>
-      <ellipse cx="32" cy="17" rx="20" ry="20" fill={SKIN}/>
+      <ellipse cx="32" cy="66" rx="13" ry="2.5" fill="rgba(0,0,0,0.2)"/>
+
+      {/* Legs */}
+      <path d="M22 53 L21 61 Q21 63 24 63 L28 63 Q30 63 30 61 L29 53 Z" fill="#2d3748"/>
+      <path d="M34 53 L33 61 Q33 63 36 63 L40 63 Q42 63 42 61 L43 53 Z" fill="#2d3748"/>
+      <path d="M20 61 Q19 66 25 66 L29 66 Q32 66 31 62 Z" fill="#1a2030"/>
+      <path d="M33 61 Q32 66 36 66 L40 66 Q45 66 44 62 Z" fill="#1a2030"/>
+
+      {/* Body */}
+      <path d="M15 38 Q15 33 24 31 L40 31 Q49 33 49 38 L49 53 Q49 55 44 55 L20 55 Q15 55 15 53 Z" fill={color}/>
+      <path d="M15 48 Q32 53 49 48 L49 53 Q49 55 44 55 L20 55 Q15 55 15 53 Z" fill="rgba(0,0,0,0.08)"/>
+      <path d="M26 31 L32 37 L38 31" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.3" strokeLinejoin="round"/>
+
+      {/* Arms */}
+      <path d="M15 38 Q10 41 8 47 Q7 51 9 54" stroke={color} strokeWidth="7" strokeLinecap="round" fill="none"/>
+      <path d="M49 38 Q54 41 56 47 Q57 51 55 54" stroke={color} strokeWidth="7" strokeLinecap="round" fill="none"/>
+      <circle cx="9" cy="55" r="3.5" fill={SKIN}/>
+      <circle cx="55" cy="55" r="3.5" fill={SKIN}/>
+
+      {/* Neck */}
+      <rect x="27" y="27" width="10" height="6" rx="4" fill={SKIN}/>
+
+      {/* Head */}
+      <ellipse cx="32" cy="17" rx="14" ry="15" fill={SKIN}/>
+
+      {/* Hair */}
       {hairStyle === 0 && <>
-        <ellipse cx="32" cy="3"  rx="20" ry="12" fill={hair}/>
-        <rect    x="12" y="3"   width="40" height="14" fill={hair}/>
-        <ellipse cx="11" cy="18" rx="6"  ry="12" fill={hair}/>
-        <ellipse cx="53" cy="18" rx="6"  ry="12" fill={hair}/>
-        <path d="M13 7 Q20 1 32 0 Q44 1 51 7 Q48 15 32 14 Q16 15 13 7 Z" fill={hair}/>
+        <ellipse cx="32" cy="5" rx="15" ry="9" fill={hair}/>
+        <rect x="17" y="5" width="30" height="8" fill={hair}/>
+        <path d="M17 13 L17 20 Q18 19 18 16 Z" fill={hair}/>
+        <path d="M47 13 L47 20 Q46 19 46 16 Z" fill={hair}/>
+        <path d="M20 3 Q32 -1 44 3 Q42 7 32 6 Q22 7 20 3 Z" fill="rgba(255,255,255,0.07)"/>
       </>}
       {hairStyle === 1 && <>
-        <ellipse cx="32" cy="2"  rx="20" ry="11" fill={hair}/>
-        <rect    x="10" y="2"   width="10" height="32" rx="5" fill={hair}/>
-        <rect    x="44" y="2"   width="10" height="32" rx="5" fill={hair}/>
-        <ellipse cx="15" cy="33" rx="7"  ry="5"  fill={hair}/>
-        <ellipse cx="49" cy="33" rx="7"  ry="5"  fill={hair}/>
-        <path d="M11 6 Q20 0 32 0 Q44 0 53 6 Q50 14 32 13 Q14 14 11 6 Z" fill={hair}/>
+        <ellipse cx="32" cy="4" rx="15" ry="9" fill={hair}/>
+        <rect x="16" y="4" width="8" height="28" rx="4" fill={hair}/>
+        <rect x="40" y="4" width="8" height="28" rx="4" fill={hair}/>
+        <ellipse cx="20" cy="31" rx="5" ry="4" fill={hair}/>
+        <ellipse cx="44" cy="31" rx="5" ry="4" fill={hair}/>
+        <path d="M20 3 Q32 -1 44 3 Q42 7 32 6 Q22 7 20 3 Z" fill="rgba(255,255,255,0.07)"/>
       </>}
       {hairStyle === 2 && <>
-        <ellipse cx="32" cy="5"  rx="19" ry="10" fill={hair}/>
-        <ellipse cx="11" cy="17" rx="5.5" ry="11" fill={hair}/>
-        <ellipse cx="53" cy="17" rx="5.5" ry="11" fill={hair}/>
-        <polygon points="19,10 16,2 23,9" fill={hair}/>
-        <polygon points="27,8 26,1 32,8"  fill={hair}/>
-        <polygon points="37,8 38,1 44,9"  fill={hair}/>
-        <path d="M12 10 Q20 5 32 5 Q44 5 52 10 Q49 16 32 15 Q15 16 12 10 Z" fill={hair}/>
+        <ellipse cx="32" cy="5" rx="15" ry="9" fill={hair}/>
+        <path d="M17 13 L17 20 Q18 19 18 16 Z" fill={hair}/>
+        <path d="M47 13 L47 20 Q46 19 46 16 Z" fill={hair}/>
+        <path d="M22 7 L19 0 L26 6 Z" fill={hair}/>
+        <path d="M29 5 L28 -2 L34 5 Z" fill={hair}/>
+        <path d="M38 6 L40 0 L44 7 Z" fill={hair}/>
+        <path d="M20 3 Q32 -1 44 3 Q42 7 32 6 Q22 7 20 3 Z" fill="rgba(255,255,255,0.07)"/>
       </>}
       {hairStyle === 3 && <>
-        <path d="M12 14 Q15 2 22 6 Q26 0 32 4 Q38 0 42 6 Q49 2 52 14 Q48 24 32 22 Q16 24 12 14 Z" fill={hair}/>
-        <ellipse cx="10" cy="23" rx="5.5" ry="9" fill={hair}/>
-        <ellipse cx="54" cy="23" rx="5.5" ry="9" fill={hair}/>
+        <path d="M17 16 Q18 2 25 6 Q28 0 32 4 Q36 0 39 6 Q46 2 47 16 Q45 24 32 22 Q19 24 17 16 Z" fill={hair}/>
+        <ellipse cx="16" cy="21" rx="4" ry="7" fill={hair}/>
+        <ellipse cx="48" cy="21" rx="4" ry="7" fill={hair}/>
       </>}
-      <ellipse cx="11" cy="20" rx="4.5" ry="5.5" fill={SKIN}/>
-      <ellipse cx="53" cy="20" rx="4.5" ry="5.5" fill={SKIN}/>
-      <ellipse cx="23" cy="18" rx="5.5" ry="6.5" fill="white"/>
-      <ellipse cx="41" cy="18" rx="5.5" ry="6.5" fill="white"/>
-      <circle  cx="23" cy="19" r="3.5" fill="#1a0f08"/>
-      <circle  cx="41" cy="19" r="3.5" fill="#1a0f08"/>
-      <circle  cx="23" cy="19" r="2.2" fill={color} opacity="0.4"/>
-      <circle  cx="41" cy="19" r="2.2" fill={color} opacity="0.4"/>
-      <circle  cx="24.5" cy="17" r="1.5" fill="white"/>
-      <circle  cx="42.5" cy="17" r="1.5" fill="white"/>
-      <path d="M17 10 Q23 8 27 10" stroke={hair} strokeWidth="2" strokeLinecap="round" fill="none"/>
-      <path d="M37 10 Q41 8 47 10" stroke={hair} strokeWidth="2" strokeLinecap="round" fill="none"/>
-      <ellipse cx="32" cy="24" rx="2" ry="1.3" fill="#d4946a" opacity="0.45"/>
-      <path d="M25 28 Q32 35 39 28" stroke="#c4785a" strokeWidth="2" strokeLinecap="round" fill="none"/>
-      <ellipse cx="15" cy="24" rx="5.5" ry="3" fill="#f4a0b0" opacity="0.4"/>
-      <ellipse cx="49" cy="24" rx="5.5" ry="3" fill="#f4a0b0" opacity="0.4"/>
+
+      {/* Ears */}
+      <ellipse cx="18" cy="19" rx="3" ry="4" fill={SKIN}/>
+      <ellipse cx="46" cy="19" rx="3" ry="4" fill={SKIN}/>
+
+      {/* Eyes */}
+      <ellipse cx="25" cy="18" rx="3.8" ry="4.2" fill="white"/>
+      <ellipse cx="39" cy="18" rx="3.8" ry="4.2" fill="white"/>
+      <circle cx="25.5" cy="19" r="2.8" fill="#2d1810"/>
+      <circle cx="39.5" cy="19" r="2.8" fill="#2d1810"/>
+      <circle cx="25.5" cy="19" r="1.8" fill={color} opacity="0.35"/>
+      <circle cx="39.5" cy="19" r="1.8" fill={color} opacity="0.35"/>
+      <circle cx="25.5" cy="19.5" r="1" fill="#080808"/>
+      <circle cx="39.5" cy="19.5" r="1" fill="#080808"/>
+      <circle cx="26.8" cy="17.5" r="1.2" fill="white"/>
+      <circle cx="40.8" cy="17.5" r="1.2" fill="white"/>
+
+      {/* Eyebrows */}
+      <path d="M21 12.5 Q25 10.5 28 12.5" stroke={hair} strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+      <path d="M36 12.5 Q39 10.5 43 12.5" stroke={hair} strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+
+      {/* Nose */}
+      <path d="M31 23 Q32 24.5 33 23" stroke="#c89070" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.5"/>
+
+      {/* Smile */}
+      <path d="M27 26 Q32 30 37 26" stroke="#c4785a" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+
+      {/* Blush */}
+      <ellipse cx="19.5" cy="23" rx="3.5" ry="2" fill="#f4a0b0" opacity="0.28"/>
+      <ellipse cx="44.5" cy="23" rx="3.5" ry="2" fill="#f4a0b0" opacity="0.28"/>
+
+      {/* Glasses */}
       {glasses && <>
-        <circle cx="23" cy="18" r="7.5" fill="none" stroke="#5a3a14" strokeWidth="1.4" opacity="0.7"/>
-        <circle cx="41" cy="18" r="7.5" fill="none" stroke="#5a3a14" strokeWidth="1.4" opacity="0.7"/>
-        <line x1="30.5" y1="18" x2="33.5" y2="18" stroke="#5a3a14" strokeWidth="1.4" opacity="0.7"/>
-        <line x1="9"    y1="16" x2="15.5" y2="17.5" stroke="#5a3a14" strokeWidth="1.4" opacity="0.7"/>
-        <line x1="55"   y1="16" x2="48.5" y2="17.5" stroke="#5a3a14" strokeWidth="1.4" opacity="0.7"/>
+        <ellipse cx="25" cy="18" rx="5.5" ry="5" fill="none" stroke="#4a3010" strokeWidth="1.1" opacity="0.65"/>
+        <ellipse cx="39" cy="18" rx="5.5" ry="5" fill="none" stroke="#4a3010" strokeWidth="1.1" opacity="0.65"/>
+        <line x1="30.5" y1="17.5" x2="33.5" y2="17.5" stroke="#4a3010" strokeWidth="1.1" opacity="0.65"/>
+        <line x1="15" y1="17" x2="19.5" y2="17.5" stroke="#4a3010" strokeWidth="1.1" opacity="0.65"/>
+        <line x1="49" y1="17" x2="44.5" y2="17.5" stroke="#4a3010" strokeWidth="1.1" opacity="0.65"/>
       </>}
     </svg>
   )
 }
 
-// Seated version — upper body visible, lower body hidden behind desk
+// Seated version
 function SeatedCharacterSVG({ color, size = 44, userId = 0 }) {
   const s = size / 64
   const { hair, hairStyle, glasses } = traitFor(userId)
   return (
     <svg width={64*s} height={56*s} viewBox="0 0 64 56" fill="none">
 
-      {/* Chair back (behind body) */}
+      {/* Chair back */}
       <rect x="22" y="28" width="20" height="18" rx="4" fill="rgba(0,0,0,0.22)"/>
 
       {/* Body / torso */}
-      <path d="M13 50 L13 27 Q15 21 25 20 L39 20 Q49 21 51 27 L51 50 Z" fill={color}/>
-      <path d="M25 20 L32 28 L39 20" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
-      <path d="M13 45 Q32 49 51 45 L51 50 L13 50 Z" fill="rgba(0,0,0,0.1)"/>
+      <path d="M14 50 L14 28 Q16 22 26 21 L38 21 Q48 22 50 28 L50 50 Z" fill={color}/>
+      <path d="M26 21 L32 28 L38 21" stroke="rgba(255,255,255,0.18)" strokeWidth="1.3" strokeLinejoin="round" fill="none"/>
+      <path d="M14 45 Q32 49 50 45 L50 50 L14 50 Z" fill="rgba(0,0,0,0.08)"/>
 
-      {/* Arms resting forward on desk */}
-      <path d="M14 32 Q7 38 8 46" stroke={color} strokeWidth="9" strokeLinecap="round"/>
-      <path d="M50 32 Q57 38 56 46" stroke={color} strokeWidth="9" strokeLinecap="round"/>
+      {/* Arms on desk */}
+      <path d="M15 32 Q8 38 9 46" stroke={color} strokeWidth="8" strokeLinecap="round"/>
+      <path d="M49 32 Q56 38 55 46" stroke={color} strokeWidth="8" strokeLinecap="round"/>
 
-      {/* Desk surface (hides lower body) */}
+      {/* Desk surface */}
       <rect x="0" y="43" width="64" height="13" rx="0" fill="#1a1208" opacity="0.85"/>
       <rect x="0" y="43" width="64" height="3" rx="0" fill="#2e1f0a" opacity="0.6"/>
 
-      {/* Book — open on desk */}
+      {/* Book */}
       <rect x="17" y="38" width="13" height="10" rx="1.5" fill="#e8d49a"/>
       <rect x="30" y="38" width="13" height="10" rx="1.5" fill="#f0dfb0"/>
       <line x1="30" y1="38.5" x2="30" y2="47.5" stroke="rgba(0,0,0,0.25)" strokeWidth="1.2"/>
@@ -603,97 +638,104 @@ function SeatedCharacterSVG({ color, size = 44, userId = 0 }) {
         <line key={`br${y}`} x1="32" y1={y} x2="41" y2={y} stroke="rgba(0,0,0,0.1)" strokeWidth="0.7"/>
       ))}
 
-      {/* Hands resting on desk beside book */}
-      <ellipse cx="8" cy="44" rx="5" ry="3.5" fill={SKIN}/>
-      <ellipse cx="56" cy="44" rx="5" ry="3.5" fill={SKIN}/>
+      {/* Hands on desk */}
+      <ellipse cx="9" cy="44" rx="4.5" ry="3.2" fill={SKIN}/>
+      <ellipse cx="55" cy="44" rx="4.5" ry="3.2" fill={SKIN}/>
 
       {/* Neck */}
-      <rect x="28" y="16" width="8" height="6" rx="3" fill={SKIN}/>
+      <rect x="28" y="15" width="8" height="7" rx="3" fill={SKIN}/>
+      <path d="M28 19 Q32 21 36 19 L36 22 L28 22 Z" fill="rgba(0,0,0,0.04)"/>
 
-      {/* Head — smaller, realistic proportions */}
-      <ellipse cx="32" cy="10" rx="11" ry="11" fill={SKIN}/>
+      {/* Head */}
+      <ellipse cx="32" cy="10" rx="12" ry="12" fill={SKIN}/>
+      <ellipse cx="32" cy="14" rx="8" ry="5" fill="rgba(0,0,0,0.02)"/>
 
       {/* Hair */}
       {hairStyle === 0 && <>
-        <ellipse cx="32" cy="2" rx="11" ry="7" fill={hair}/>
-        <rect x="21" y="2" width="22" height="11" fill={hair}/>
-        <ellipse cx="21" cy="10" rx="4" ry="7" fill={hair}/>
-        <ellipse cx="43" cy="10" rx="4" ry="7" fill={hair}/>
-        <path d="M21 4 Q32 1 43 4 Q41 9 32 9 Q23 9 21 4 Z" fill={hair}/>
+        <ellipse cx="32" cy="2" rx="13" ry="7" fill={hair}/>
+        <rect x="19" y="2" width="26" height="7" fill={hair}/>
+        <path d="M19 9 L19 14 Q20 13 20 11 Z" fill={hair}/>
+        <path d="M45 9 L45 14 Q44 13 44 11 Z" fill={hair}/>
+        <path d="M22 1 Q32 -2 42 1 Q40 5 32 4 Q24 5 22 1 Z" fill="rgba(255,255,255,0.07)"/>
       </>}
       {hairStyle === 1 && <>
-        <ellipse cx="32" cy="2" rx="11" ry="7" fill={hair}/>
-        <rect x="18" y="2" width="7" height="20" rx="3.5" fill={hair}/>
-        <rect x="39" y="2" width="7" height="20" rx="3.5" fill={hair}/>
-        <path d="M19 4 Q32 1 45 4 Q43 9 32 8 Q21 9 19 4 Z" fill={hair}/>
+        <ellipse cx="32" cy="1" rx="13" ry="7" fill={hair}/>
+        <rect x="18" y="1" width="7" height="20" rx="3.5" fill={hair}/>
+        <rect x="39" y="1" width="7" height="20" rx="3.5" fill={hair}/>
+        <path d="M22 1 Q32 -2 42 1 Q40 5 32 4 Q24 5 22 1 Z" fill="rgba(255,255,255,0.07)"/>
       </>}
       {hairStyle === 2 && <>
-        <ellipse cx="32" cy="2" rx="11" ry="7" fill={hair}/>
-        <ellipse cx="21" cy="11" rx="4" ry="7" fill={hair}/>
-        <ellipse cx="43" cy="11" rx="4" ry="7" fill={hair}/>
-        <polygon points="23,7 21,1 27,6" fill={hair}/>
-        <polygon points="30,5 29,0 33,5" fill={hair}/>
-        <polygon points="36,5 37,0 41,6" fill={hair}/>
-        <path d="M21 8 Q32 2 43 8 Q41 12 32 11 Q23 12 21 8 Z" fill={hair}/>
+        <ellipse cx="32" cy="2" rx="13" ry="7" fill={hair}/>
+        <path d="M19 9 L19 14 Q20 13 20 11 Z" fill={hair}/>
+        <path d="M45 9 L45 14 Q44 13 44 11 Z" fill={hair}/>
+        <path d="M24 5 L22 0 L28 4 Z" fill={hair}/>
+        <path d="M30 3 L29 -2 L34 3 Z" fill={hair}/>
+        <path d="M36 4 L38 0 L42 5 Z" fill={hair}/>
+        <path d="M22 1 Q32 -2 42 1 Q40 5 32 4 Q24 5 22 1 Z" fill="rgba(255,255,255,0.07)"/>
       </>}
       {hairStyle === 3 && <>
-        <path d="M21 10 Q23 0 29 4 Q31 0 32 2 Q33 0 35 4 Q41 0 43 10 Q41 17 32 16 Q23 17 21 10 Z" fill={hair}/>
-        <ellipse cx="20" cy="14" rx="4.5" ry="6" fill={hair}/>
-        <ellipse cx="44" cy="14" rx="4.5" ry="6" fill={hair}/>
+        <path d="M19 12 Q20 0 27 4 Q30 -1 32 2 Q34 -1 37 4 Q44 0 45 12 Q43 18 32 17 Q21 18 19 12 Z" fill={hair}/>
+        <ellipse cx="18" cy="14" rx="4" ry="6" fill={hair}/>
+        <ellipse cx="46" cy="14" rx="4" ry="6" fill={hair}/>
       </>}
 
       {/* Ears */}
-      <ellipse cx="20" cy="10" rx="3.5" ry="4.5" fill={SKIN}/>
-      <ellipse cx="44" cy="10" rx="3.5" ry="4.5" fill={SKIN}/>
-      <ellipse cx="20" cy="10" rx="2" ry="2.5" fill="#e8a880" opacity="0.5"/>
-      <ellipse cx="44" cy="10" rx="2" ry="2.5" fill="#e8a880" opacity="0.5"/>
+      <ellipse cx="20" cy="11" rx="2.5" ry="3.5" fill={SKIN}/>
+      <ellipse cx="44" cy="11" rx="2.5" ry="3.5" fill={SKIN}/>
+      <ellipse cx="20" cy="11" rx="1.5" ry="2" fill={SKIN_S} opacity="0.4"/>
+      <ellipse cx="44" cy="11" rx="1.5" ry="2" fill={SKIN_S} opacity="0.4"/>
 
-      {/* Eyes — looking slightly down (reading) */}
-      <ellipse cx="26" cy="9" rx="4.5" ry="5" fill="white"/>
-      <ellipse cx="38" cy="9" rx="4.5" ry="5" fill="white"/>
-      <circle cx="26" cy="10.5" r="3" fill="#1a0f08"/>
-      <circle cx="38" cy="10.5" r="3" fill="#1a0f08"/>
-      <circle cx="26" cy="10.5" r="1.8" fill={color} opacity="0.4"/>
-      <circle cx="38" cy="10.5" r="1.8" fill={color} opacity="0.4"/>
-      <circle cx="27.5" cy="8" r="1.2" fill="white"/>
-      <circle cx="39.5" cy="8" r="1.2" fill="white"/>
+      {/* Eyes — looking down (reading) */}
+      <ellipse cx="26" cy="10" rx="3.5" ry="3.8" fill="white"/>
+      <ellipse cx="38" cy="10" rx="3.5" ry="3.8" fill="white"/>
+      <circle cx="26" cy="11" r="2.5" fill="#2d1810"/>
+      <circle cx="38" cy="11" r="2.5" fill="#2d1810"/>
+      <circle cx="26" cy="11" r="1.5" fill={color} opacity="0.35"/>
+      <circle cx="38" cy="11" r="1.5" fill={color} opacity="0.35"/>
+      <circle cx="26" cy="11.5" r="0.8" fill="#080808"/>
+      <circle cx="38" cy="11.5" r="0.8" fill="#080808"/>
+      <circle cx="27" cy="9" r="1" fill="white"/>
+      <circle cx="39" cy="9" r="1" fill="white"/>
 
       {/* Eyebrows */}
-      <path d="M21 4 Q26 2.5 29 4" stroke={hair} strokeWidth="1.7" strokeLinecap="round" fill="none"/>
-      <path d="M35 4 Q38 2.5 43 4" stroke={hair} strokeWidth="1.7" strokeLinecap="round" fill="none"/>
+      <path d="M22 5.5 Q26 4 29 5.5" stroke={hair} strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+      <path d="M35 5.5 Q38 4 42 5.5" stroke={hair} strokeWidth="1.4" strokeLinecap="round" fill="none"/>
 
       {/* Nose */}
-      <ellipse cx="32" cy="13.5" rx="1.5" ry="1" fill="#d4946a" opacity="0.4"/>
+      <path d="M31 14 Q32 15.2 33 14" stroke="#c89070" strokeWidth="0.9" strokeLinecap="round" fill="none" opacity="0.45"/>
 
-      {/* Mouth — focused expression */}
-      <path d="M27 17 Q32 20.5 37 17" stroke="#c4785a" strokeWidth="1.7" strokeLinecap="round" fill="none"/>
+      {/* Mouth — focused */}
+      <path d="M28 17 Q32 20 36 17" stroke="#c4785a" strokeWidth="1.4" strokeLinecap="round" fill="none"/>
 
       {/* Blush */}
-      <ellipse cx="20" cy="13" rx="4.5" ry="2.3" fill="#f4a0b0" opacity="0.35"/>
-      <ellipse cx="44" cy="13" rx="4.5" ry="2.3" fill="#f4a0b0" opacity="0.35"/>
+      <ellipse cx="21" cy="13.5" rx="3" ry="1.8" fill="#f4a0b0" opacity="0.25"/>
+      <ellipse cx="43" cy="13.5" rx="3" ry="1.8" fill="#f4a0b0" opacity="0.25"/>
 
       {/* Glasses */}
       {glasses && <>
-        <circle cx="26" cy="9" r="6" fill="none" stroke="#5a3a14" strokeWidth="1.1" opacity="0.7"/>
-        <circle cx="38" cy="9" r="6" fill="none" stroke="#5a3a14" strokeWidth="1.1" opacity="0.7"/>
-        <line x1="32" y1="9" x2="34" y2="9" stroke="#5a3a14" strokeWidth="1.1" opacity="0.7"/>
-        <line x1="8" y1="7.5" x2="20" y2="8.5" stroke="#5a3a14" strokeWidth="1.1" opacity="0.7"/>
-        <line x1="56" y1="7.5" x2="44" y2="8.5" stroke="#5a3a14" strokeWidth="1.1" opacity="0.7"/>
+        <ellipse cx="26" cy="10" rx="5" ry="4.5" fill="none" stroke="#4a3010" strokeWidth="1" opacity="0.6"/>
+        <ellipse cx="38" cy="10" rx="5" ry="4.5" fill="none" stroke="#4a3010" strokeWidth="1" opacity="0.6"/>
+        <line x1="31" y1="10" x2="33" y2="10" stroke="#4a3010" strokeWidth="1" opacity="0.6"/>
+        <line x1="16" y1="9" x2="21" y2="9.5" stroke="#4a3010" strokeWidth="1" opacity="0.6"/>
+        <line x1="48" y1="9" x2="43" y2="9.5" stroke="#4a3010" strokeWidth="1" opacity="0.6"/>
       </>}
     </svg>
   )
 }
 
+
 // ── Entry animation ───────────────────────────────────────────────
 function WalkingCharacter({ occupant, seatId, onDone }) {
   const [phase, setPhase] = useState('door') // door → walking → arrived
   const target = getSeatCenter(seatId)
+  const onDoneRef = useRef(onDone)
+  onDoneRef.current = onDone
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase('walking'), 60)
-    const t2 = setTimeout(() => { setPhase('arrived'); onDone() }, 2100)
+    const t2 = setTimeout(() => { setPhase('arrived'); onDoneRef.current() }, 2100)
     return () => { clearTimeout(t1); clearTimeout(t2) }
-  }, [onDone])
+  }, [])
 
   if (!target || phase === 'arrived') return null
 
