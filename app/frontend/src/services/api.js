@@ -92,11 +92,6 @@ export const questionApi = {
   practice:  (params) => api.get('/questions/practice', { params }).then(r => r.data),
 }
 
-export const achievementApi = {
-  getAll: () => api.get('/achievements').then(r => r.data),
-  check: () => api.post('/achievements/check').then(r => r.data),
-}
-
 export const reportApi = {
   downloadWeekly: () => api.get('/reports/weekly', { responseType: 'blob' }).then(r => {
     const url = window.URL.createObjectURL(new Blob([r.data], { type: 'application/pdf' }))

@@ -361,17 +361,15 @@ function SessionBar({ sessionType, phase, seconds, paused, count, onPause, onLea
         {fmtSecs(seconds)}
       </span>
       <div style={{display:'flex',gap:8,alignItems:'center'}}>
-        {sessionType==='pomodoro' && (
-          <button onClick={onPause}
-            style={{width:30,height:30,borderRadius:'50%',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.1)',color:'#64748b',fontSize:12,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.15s'}}
-            onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.08)';e.currentTarget.style.color='#e2e8f0'}}
-            onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.04)';e.currentTarget.style.color='#64748b'}}>
-            {paused
-              ? <svg viewBox="0 0 24 24" fill="currentColor" style={{width:12,height:12}}><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              : <svg viewBox="0 0 24 24" fill="currentColor" style={{width:12,height:12}}><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-            }
-          </button>
-        )}
+        <button onClick={onPause}
+          style={{width:30,height:30,borderRadius:'50%',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.1)',color:'#64748b',fontSize:12,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.15s'}}
+          onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.08)';e.currentTarget.style.color='#e2e8f0'}}
+          onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.04)';e.currentTarget.style.color='#64748b'}}>
+          {paused
+            ? <svg viewBox="0 0 24 24" fill="currentColor" style={{width:12,height:12}}><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            : <svg viewBox="0 0 24 24" fill="currentColor" style={{width:12,height:12}}><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+          }
+        </button>
         <button onClick={onLeave}
           style={{padding:'5px 14px',borderRadius:20,background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)',color:'#f87171',fontSize:11,fontWeight:700,cursor:'pointer',transition:'all 0.15s'}}
           onMouseEnter={e=>e.currentTarget.style.background='rgba(239,68,68,0.18)'}
@@ -1482,6 +1480,9 @@ export default function StudyRoom() {
   const [timerSeconds,      setTimerSeconds]       = useState(0)
   const [paused,            setPaused]             = useState(false)
   const [pomodoroCount,     setPomodoroCount]      = useState(0)
+  const freeStartRef     = useRef(null)
+  const freePausedMsRef  = useRef(0)
+  const freePausedAtRef  = useRef(null)
 
   // Entry animation state
   const [enteringSeats, setEnteringSeats] = useState({}) // { seatId: occupant }
@@ -1515,14 +1516,16 @@ export default function StudyRoom() {
   useEffect(() => { subjectApi.getAll().then(setSubjects).catch(()=>{}) }, [])
   useEffect(() => { const id = setInterval(()=>setTick(t=>t+1), 15000); return ()=>clearInterval(id) }, [])
 
-  // Timer tick
+  // Timer tick — timestamp-based for free mode so background tabs don't drift
   useEffect(() => {
     if (sessionPhase === 'idle' || !sessionType || paused) return
     const id = setInterval(() => {
-      setTimerSeconds(t => {
-        if (sessionType === 'free') return t + 1
-        return t > 0 ? t - 1 : 0
-      })
+      if (sessionType === 'free' && freeStartRef.current) {
+        const totalMs = Date.now() - freeStartRef.current - freePausedMsRef.current
+        setTimerSeconds(Math.max(0, Math.floor(totalMs / 1000)))
+      } else {
+        setTimerSeconds(t => t > 0 ? t - 1 : 0)
+      }
     }, 1000)
     return () => clearInterval(id)
   }, [sessionPhase, sessionType, paused])
@@ -1575,6 +1578,7 @@ export default function StudyRoom() {
     setSessionType(null);        setSessionPhase('idle')
     setTimerSeconds(0);          setPaused(false)
     setPomodoroCount(0)
+    freeStartRef.current = null; freePausedMsRef.current = 0; freePausedAtRef.current = null
   }, [])
 
   const handleConfirm = useCallback((subjectName, status) => {
@@ -1588,6 +1592,9 @@ export default function StudyRoom() {
   const handleSessionFree = useCallback(() => {
     setShowSessionPicker(false)
     setSessionType('free'); setSessionPhase('focus'); setTimerSeconds(0)
+    freeStartRef.current = Date.now()
+    freePausedMsRef.current = 0
+    freePausedAtRef.current = null
   }, [])
 
   const handleSessionPomodoro = useCallback(() => {
@@ -1619,7 +1626,17 @@ export default function StudyRoom() {
     setShowBreakEnd(false); setShowFocusPicker(true)
   }, [])
 
-  const handlePause = useCallback(() => setPaused(p => !p), [])
+  const handlePause = useCallback(() => {
+    setPaused(p => {
+      if (!p && sessionType === 'free') {
+        freePausedAtRef.current = Date.now()
+      } else if (p && sessionType === 'free' && freePausedAtRef.current) {
+        freePausedMsRef.current += Date.now() - freePausedAtRef.current
+        freePausedAtRef.current = null
+      }
+      return !p
+    })
+  }, [sessionType])
 
   // Leave flow — always go through the save modal
   const handleLeaveRequest = useCallback(() => setShowLeave(true), [])

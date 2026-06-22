@@ -1,23 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
-import { dashboardApi, sessionApi, subjectApi, preferencesApi, weeklyPlanApi, achievementApi, reportApi } from '../services/api'
+import { dashboardApi, sessionApi, subjectApi, preferencesApi, weeklyPlanApi, reportApi } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
-
-const ACHIEVEMENT_LABELS = {
-  STREAK_7: 'Sequência de 7 dias', STREAK_30: 'Sequência de 30 dias', STREAK_100: 'Sequência de 100 dias',
-  HOURS_10: '10 horas de estudo', HOURS_50: '50 horas de estudo', HOURS_100: '100 horas de estudo', HOURS_500: '500 horas de estudo',
-  SESSIONS_50: '50 sessões', SESSIONS_100: '100 sessões',
-  EDITAL_25: '25% do edital', EDITAL_50: '50% do edital', EDITAL_100: 'Edital completo',
-  FIRST_SIMULATION: 'Primeiro simulado', FIRST_NOTE: 'Primeira anotação',
-}
-const ACHIEVEMENT_ICONS = {
-  STREAK_7: '🔥', STREAK_30: '🔥', STREAK_100: '🔥',
-  HOURS_10: '⏱', HOURS_50: '⏱', HOURS_100: '⏱', HOURS_500: '⏱',
-  SESSIONS_50: '📚', SESSIONS_100: '📚',
-  EDITAL_25: '📋', EDITAL_50: '📋', EDITAL_100: '📋',
-  FIRST_SIMULATION: '🎯', FIRST_NOTE: '📝',
-}
 
 const QUOTES = [
   { text: 'O sucesso é a soma de pequenos esforços repetidos dia após dia.', author: 'Robert Collier' },
@@ -241,7 +226,6 @@ export default function Dashboard() {
   const [subjects,      setSubjects]      = useState([])
   const [todaySessions, setTodaySessions] = useState([])
   const [todayPlans,    setTodayPlans]    = useState([])
-  const [achievements,  setAchievements]  = useState([])
   const [prefs,         setPrefs]         = useState(null)
   const [loading,       setLoading]       = useState(true)
 
@@ -272,12 +256,6 @@ export default function Dashboard() {
 
   useEffect(() => {
     preferencesApi.get().then(raw => setPrefs({ dailyGoalHours: 4, weeklyGoalHours: 20, ...raw })).catch(() => {})
-    achievementApi.check().then(newOnes => {
-      if (newOnes && newOnes.length > 0) {
-        newOnes.forEach(a => window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message: `Conquista desbloqueada: ${ACHIEVEMENT_LABELS[a.type] || a.type}` } })))
-      }
-    }).catch(() => {})
-    achievementApi.getAll().then(setAchievements).catch(() => {})
   }, [])
 
   if (loading) return (
@@ -458,23 +436,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Achievements ── */}
-      {achievements.length > 0 && (
-        <div>
-          <span className="text-xs font-bold tracking-widest uppercase px-1" style={{ color: 'var(--text-fad)' }}>
-            Conquistas ({achievements.length})
-          </span>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {achievements.map(a => (
-              <div key={a.id} className="flex items-center gap-2 rounded-xl px-3 py-2"
-                style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.15)' }}>
-                <span className="text-base">{ACHIEVEMENT_ICONS[a.type] || '⭐'}</span>
-                <span className="text-xs font-medium" style={{ color: '#a78bfa' }}>{ACHIEVEMENT_LABELS[a.type] || a.type}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

@@ -113,6 +113,9 @@ export default function FloatingTimer() {
 
   const [elapsed, setElapsed]     = useState(0)
   const [startedAt, setStartedAt] = useState(null)
+  const [paused, setPaused]             = useState(false)
+  const [pausedAt, setPausedAt]         = useState(null)
+  const [totalPausedMs, setTotalPausedMs] = useState(0)
 
   const [pomPhase,     setPomPhase]     = useState('work')
   const [pomTimeLeft,  setPomTimeLeft]  = useState(0)
@@ -137,8 +140,16 @@ export default function FloatingTimer() {
       const d = JSON.parse(raw)
       if (d.mode === 'free') {
         const start = new Date(d.startedAt)
-        const secs  = Math.floor((Date.now() - start.getTime()) / 1000)
-        setStartedAt(start); setElapsed(secs); setMode('free'); setState('running')
+        const savedPausedMs = d.totalPausedMs || 0
+        if (d.paused && d.pausedAt) {
+          const secs = Math.floor((d.pausedAt - start.getTime() - savedPausedMs) / 1000)
+          setStartedAt(start); setElapsed(Math.max(0, secs)); setMode('free'); setState('running')
+          setPaused(true); setPausedAt(d.pausedAt); setTotalPausedMs(savedPausedMs)
+        } else {
+          const secs = Math.floor((Date.now() - start.getTime() - savedPausedMs) / 1000)
+          setStartedAt(start); setElapsed(Math.max(0, secs)); setMode('free'); setState('running')
+          setTotalPausedMs(savedPausedMs)
+        }
       } else if (d.mode === 'pomodoro') {
         const cfg      = d.config || DEFAULT_POMODORO
         const deadline = d.phaseDeadline || Date.now()
@@ -154,15 +165,20 @@ export default function FloatingTimer() {
     } catch {}
   }, [])
 
-  // Free timer tick
+  // Free timer tick — timestamp-based so background tabs don't drift
   useEffect(() => {
-    if (state === 'fullscreen' || state === 'running') {
-      freeIntervalRef.current = setInterval(() => setElapsed(e => e + 1), 1000)
+    if ((state === 'fullscreen' || state === 'running') && !paused && startedAt) {
+      const tick = () => {
+        const totalMs = Date.now() - startedAt.getTime() - totalPausedMs
+        setElapsed(Math.max(0, Math.floor(totalMs / 1000)))
+      }
+      tick()
+      freeIntervalRef.current = setInterval(tick, 1000)
     } else {
       clearInterval(freeIntervalRef.current)
     }
     return () => clearInterval(freeIntervalRef.current)
-  }, [state])
+  }, [state, paused, startedAt, totalPausedMs])
 
   // Pomodoro tick
   useEffect(() => {
@@ -217,7 +233,29 @@ export default function FloatingTimer() {
   const startFree = () => {
     const now = new Date()
     setStartedAt(now); setElapsed(0); setMode('free'); setState('fullscreen')
-    localStorage.setItem(LS_KEY, JSON.stringify({ mode: 'free', startedAt: now.toISOString() }))
+    setPaused(false); setPausedAt(null); setTotalPausedMs(0)
+    localStorage.setItem(LS_KEY, JSON.stringify({ mode: 'free', startedAt: now.toISOString(), totalPausedMs: 0 }))
+  }
+
+  const pauseFree = () => {
+    const now = Date.now()
+    setPaused(true)
+    setPausedAt(now)
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      mode: 'free', startedAt: startedAt.toISOString(),
+      paused: true, pausedAt: now, totalPausedMs
+    }))
+  }
+
+  const resumeFree = () => {
+    const newTotalPaused = totalPausedMs + (Date.now() - pausedAt)
+    setTotalPausedMs(newTotalPaused)
+    setPaused(false)
+    setPausedAt(null)
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      mode: 'free', startedAt: startedAt.toISOString(),
+      paused: false, pausedAt: null, totalPausedMs: newTotalPaused
+    }))
   }
 
   const startPomodoro = () => {
@@ -284,6 +322,7 @@ export default function FloatingTimer() {
   const reset = () => {
     localStorage.removeItem(LS_KEY)
     setState('idle'); setMode(null); setElapsed(0); setStartedAt(null); setForm(EMPTY_FORM)
+    setPaused(false); setPausedAt(null); setTotalPausedMs(0)
     pomRef.current = { phase: 'work', timeLeft: 0, completed: 0, workSecs: 0, config: pomDraft }
     setPomPhase('work'); setPomTimeLeft(0); setPomCompleted(0); setPomWorkSecs(0)
   }
@@ -316,10 +355,13 @@ export default function FloatingTimer() {
           <div className="flex-1 flex flex-col items-center justify-center gap-5 select-none">
             <p className="text-sm capitalize font-medium" style={{ color: isDark ? '#475569' : '#94a3b8' }}>{todayLabel}</p>
 
-            <div className="flex items-center gap-2.5 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5">
-              <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
-              <span className="text-xs uppercase tracking-[0.18em] font-semibold" style={{ color: '#a78bfa' }}>
-                Sessão em andamento
+            <div className={`flex items-center gap-2.5 ${paused ? 'bg-amber-500/10 border-amber-500/20' : 'bg-violet-500/10 border-violet-500/20'} border rounded-full px-4 py-1.5`}>
+              {paused
+                ? <span className="w-2 h-2 rounded-full bg-amber-400" />
+                : <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
+              }
+              <span className="text-xs uppercase tracking-[0.18em] font-semibold" style={{ color: paused ? '#fbbf24' : '#a78bfa' }}>
+                {paused ? 'Sessão pausada' : 'Sessão em andamento'}
               </span>
             </div>
 
@@ -337,6 +379,19 @@ export default function FloatingTimer() {
           </div>
 
           <div className="flex items-center justify-center gap-4 pb-12">
+            <button
+              onClick={paused ? resumeFree : pauseFree}
+              className="px-10 py-3.5 rounded-2xl font-semibold text-sm transition-all hover:scale-105 active:scale-95"
+              style={{
+                background: paused
+                  ? (isDark ? 'rgba(139,92,246,0.1)' : 'rgba(139,92,246,0.08)')
+                  : (isDark ? 'rgba(251,191,36,0.1)' : 'rgba(251,191,36,0.08)'),
+                border: paused ? '1px solid rgba(139,92,246,0.25)' : '1px solid rgba(251,191,36,0.25)',
+                color: paused ? '#a78bfa' : '#fbbf24',
+              }}
+            >
+              {paused ? 'Retomar' : 'Pausar'}
+            </button>
             <button
               onClick={stopFree}
               className="px-10 py-3.5 rounded-2xl font-semibold text-sm transition-all hover:scale-105 active:scale-95"
@@ -419,11 +474,16 @@ export default function FloatingTimer() {
         {/* Free minimizado */}
         {state === 'running' && (
           <div className="rounded-2xl shadow-2xl p-4 flex flex-col items-center gap-3 w-52 ring-1 ring-violet-500/10"
-            style={{ background: 'var(--bg-card)', border: '1px solid rgba(139,92,246,0.4)' }}>
+            style={{ background: 'var(--bg-card)', border: `1px solid ${paused ? 'rgba(251,191,36,0.4)' : 'rgba(139,92,246,0.4)'}` }}>
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-                <span className="text-xs text-violet-400 uppercase tracking-widest font-medium">Estudando</span>
+                {paused
+                  ? <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  : <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+                }
+                <span className={`text-xs uppercase tracking-widest font-medium ${paused ? 'text-amber-400' : 'text-violet-400'}`}>
+                  {paused ? 'Pausado' : 'Estudando'}
+                </span>
               </div>
               <button onClick={() => setState('fullscreen')} title="Expandir" className="transition-colors" style={{ color: 'var(--text-mut)' }}>
                 <MinimizeIcon />
@@ -432,9 +492,21 @@ export default function FloatingTimer() {
             <span className="text-4xl font-mono font-bold tabular-nums leading-none" style={{ color: 'var(--text)' }}>
               {formatTime(elapsed)}
             </span>
-            <button onClick={stopFree} className="w-full py-2 rounded-xl bg-red-500 hover:bg-red-400 active:scale-95 text-white text-xs font-semibold transition-all">
-              Encerrar
-            </button>
+            <div className="flex gap-2 w-full">
+              <button
+                onClick={paused ? resumeFree : pauseFree}
+                className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all active:scale-95 ${
+                  paused
+                    ? 'bg-violet-500 hover:bg-violet-400 text-white'
+                    : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/25'
+                }`}
+              >
+                {paused ? 'Retomar' : 'Pausar'}
+              </button>
+              <button onClick={stopFree} className="flex-1 py-2 rounded-xl bg-red-500 hover:bg-red-400 active:scale-95 text-white text-xs font-semibold transition-all">
+                Encerrar
+              </button>
+            </div>
           </div>
         )}
 

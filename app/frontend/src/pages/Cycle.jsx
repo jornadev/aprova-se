@@ -66,7 +66,12 @@ export default function Cycle() {
 
   useEffect(() => {
     if (activeSession) {
-      timerRef.current = setInterval(() => setElapsed(e => e + 1), 1000)
+      const startMs = activeSession.startedAt
+        ? new Date(activeSession.startedAt).getTime()
+        : Date.now()
+      const tick = () => setElapsed(Math.max(0, Math.floor((Date.now() - startMs) / 1000)))
+      tick()
+      timerRef.current = setInterval(tick, 1000)
     } else {
       clearInterval(timerRef.current)
     }
