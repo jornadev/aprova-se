@@ -181,14 +181,6 @@ const IcoRepeat = ({ size = 20 }) => (
     <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
   </svg>
 )
-const IcoFileQuestion = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round">
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-    <polyline points="14 2 14 8 20 8"/>
-    <circle cx="12" cy="14" r="2"/>
-    <path d="M12 18v.01"/>
-  </svg>
-)
 const IcoChevronDown = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
     <polyline points="6 9 12 15 18 9"/>
@@ -601,59 +593,6 @@ function RevisionMockup() {
   )
 }
 
-function SimuladoMockup() {
-  return (
-    <div className="rounded-xl overflow-hidden" style={{ background: '#080f1e', border: '1px solid rgba(255,255,255,0.07)' }}>
-      <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#060b16' }}>
-        <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700 }}>SIMULADO</span>
-        <span style={{ fontSize: 10, color: '#a78bfa', fontWeight: 600 }}>Questão 8/20</span>
-      </div>
-      <div className="p-4 space-y-4">
-        <div className="rounded-xl p-3.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-1 h-4 rounded-full" style={{ background: '#6366f1' }} />
-            <span style={{ fontSize: 9, color: '#6366f1', fontWeight: 600 }}>LÍNGUA PORTUGUESA</span>
-          </div>
-          <p style={{ fontSize: 11, color: '#94a3b8', lineHeight: 1.6, marginBottom: 12 }}>
-            Assinale a alternativa em que a concordância verbal está de acordo com a norma-padrão:
-          </p>
-          {[
-            { letter: 'A', text: 'Fazem três anos que não o vejo.', selected: false },
-            { letter: 'B', text: 'Houveram muitos acidentes na estrada.', selected: false },
-            { letter: 'C', text: 'Existem razões para acreditar nisso.', selected: true, correct: true },
-            { letter: 'D', text: 'Haverão de chegar os reforços.', selected: false },
-          ].map(opt => (
-            <div key={opt.letter} className="flex items-center gap-2.5 py-2 px-3 rounded-lg mb-1.5" style={{
-              background: opt.selected ? 'rgba(34,197,94,0.08)' : 'transparent',
-              border: `1px solid ${opt.selected ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.05)'}`,
-            }}>
-              <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{
-                background: opt.selected ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${opt.selected ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.08)'}`,
-              }}>
-                <span style={{ fontSize: 9, fontWeight: 700, color: opt.selected ? '#22c55e' : '#475569' }}>{opt.letter}</span>
-              </div>
-              <span style={{ fontSize: 10, color: opt.selected ? '#86efac' : '#64748b' }}>{opt.text}</span>
-            </div>
-          ))}
-        </div>
-        <div>
-          <div className="mb-2" style={{ fontSize: 10, color: '#334155', fontWeight: 600 }}>APROVEITAMENTO POR DISCIPLINA</div>
-          {[['L. Portuguesa', '#6366f1', 78],['R. Lógico', '#22c55e', 62],['Informática', '#f59e0b', 85]].map(([n,c,p]) => (
-            <div key={n} className="flex items-center gap-2 mb-2">
-              <span className="truncate" style={{ fontSize: 10, color: '#475569', width: 90 }}>{n}</span>
-              <div className="flex-1 rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                <div className="h-1.5 rounded-full" style={{ width: `${p}%`, background: c }} />
-              </div>
-              <span style={{ fontSize: 10, color: p >= 70 ? '#22c55e' : '#eab308', fontWeight: 600, width: 28, textAlign: 'right' }}>{p}%</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 const FEATURE_TABS = [
   {
     id: 'edital',
@@ -690,13 +629,6 @@ const FEATURE_TABS = [
     title: 'Revisão espaçada',
     desc: 'Após cada sessão de estudo, o sistema agenda automaticamente revisões nos intervalos ideais: 1, 3, 7, 14 e 30 dias. Você nunca mais esquece o que estudou.',
     mockup: RevisionMockup,
-  },
-  {
-    id: 'simulado',
-    Icon: IcoFileQuestion,
-    title: 'Simulados e questões',
-    desc: 'Resolva questões por disciplina ou simulados completos. Veja seu aproveitamento por matéria e identifique exatamente onde precisa melhorar.',
-    mockup: SimuladoMockup,
   },
 ]
 
@@ -873,9 +805,9 @@ function PricingCard() {
   const ITEMS = [
     'Acesso completo a todas as funcionalidades',
     'Editais ilimitados',
-    'Simulados ilimitados',
     'Sala de estudos ao vivo',
     'Revisão espaçada automática',
+    'Acompanhamento de simulados',
     'Suporte por e-mail',
   ]
   return (
@@ -994,8 +926,8 @@ export default function Landing() {
                   <h1 style={{ fontSize: 'clamp(2.4rem,5vw,3.8rem)', fontWeight: 900, lineHeight: 1.07, letterSpacing: '-1px', color: 'white', margin: 0 }}>
                     Estudante hoje,<br />
                     <span style={{ backgroundImage: 'linear-gradient(135deg,#a78bfa,#818cf8,#c4b5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                      aprovado amanhã.
-                    </span>
+                      aprovado
+                    </span> amanhã.
                   </h1>
                 </Reveal>
 
@@ -1061,7 +993,7 @@ export default function Landing() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <PainCard delay={0}   Icon={IcoSearch}   problem="Não sei o que estudar hoje."         solution="O edital verticalizado e o planejamento semanal mostram exatamente o que está pendente — sem depender de intuição ou planilha." />
               <PainCard delay={100} Icon={IcoBrain}    problem="Estudo muito mas esqueço rápido."     solution="O algoritmo de revisão espaçada agenda automaticamente os momentos certos para revisar e fixar o conteúdo antes que você esqueça." />
-              <PainCard delay={200} Icon={IcoTrendUp}  problem="Não sei se estou evoluindo de fato."  solution="Heatmap, horas por disciplina, sequência de dias e aproveitamento por simulado te dão visibilidade real — não achismos." />
+              <PainCard delay={200} Icon={IcoTrendUp}  problem="Não sei se estou evoluindo de fato."  solution="Heatmap, horas por disciplina, sequência de dias e aproveitamento por matéria te dão visibilidade real — não achismos." />
             </div>
           </div>
         </section>
@@ -1339,7 +1271,7 @@ export default function Landing() {
                     'Histórico completo de sessões de estudo',
                     'Heatmap · aproveitamento · tendências · sequências',
                     'Sala de estudos ao vivo com outros concurseiros',
-                    'Simulados com análise de aproveitamento por disciplina',
+                    'Acompanhamento de simulados com aproveitamento por disciplina',
                   ].map(item => (
                     <div key={item} className="flex items-start gap-3">
                       <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
