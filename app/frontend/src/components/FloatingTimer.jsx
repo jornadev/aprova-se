@@ -636,19 +636,32 @@ export default function FloatingTimer() {
           )}
 
           <div>
-            <label className="text-sm mb-1 block" style={{ color: 'var(--text-fad)' }}>Disciplina <span className="text-red-400">*</span></label>
-            <select value={form.subjectId} onChange={e => setForm(f => ({ ...f, subjectId: e.target.value }))}
-              className="w-full rounded-xl px-3.5 py-2.5 text-sm transition-colors"
-              style={{ background: 'var(--bg-elev)', border: '1px solid var(--bdr-md)', color: 'var(--text)' }}
-              autoFocus={state !== 'manual'}>
-              <option value="">Selecione a disciplina estudada...</option>
-              {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-            {selectedSubject && (
-              <div className="flex items-center gap-2 mt-1.5">
-                <div className="w-2 h-2 rounded-full" style={{ background: selectedSubject.color }} />
-                <span className="text-xs" style={{ color: 'var(--text-fad)' }}>{selectedSubject.name}</span>
-              </div>
+            <label className="text-sm mb-2 block" style={{ color: 'var(--text-fad)' }}>Disciplina <span className="text-red-400">*</span></label>
+            <div className="flex flex-wrap gap-2">
+              {subjects.map(s => {
+                const active = +form.subjectId === s.id
+                return (
+                  <button key={s.id} type="button"
+                    onClick={() => setForm(f => ({ ...f, subjectId: String(s.id) }))}
+                    className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition-all"
+                    style={{
+                      background: active ? `${s.color}18` : 'var(--bg-elev)',
+                      border: `1.5px solid ${active ? s.color : 'var(--bdr-md)'}`,
+                      color: active ? s.color : 'var(--text-3)',
+                      fontWeight: active ? 600 : 400,
+                    }}
+                  >
+                    <div className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{ background: s.color, opacity: active ? 1 : 0.5 }} />
+                    {s.name}
+                  </button>
+                )
+              })}
+            </div>
+            {subjects.length === 0 && (
+              <p className="text-xs mt-1" style={{ color: 'var(--text-mut)' }}>
+                Nenhuma disciplina cadastrada. Adicione em Disciplinas.
+              </p>
             )}
           </div>
 

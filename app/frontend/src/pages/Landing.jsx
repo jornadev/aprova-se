@@ -173,6 +173,38 @@ const IcoStop = ({ size = 10 }) => (
     <rect x="5" y="5" width="14" height="14" rx="2"/>
   </svg>
 )
+const IcoRepeat = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="17 1 21 5 17 9"/>
+    <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+    <polyline points="7 23 3 19 7 15"/>
+    <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+  </svg>
+)
+const IcoFileQuestion = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <circle cx="12" cy="14" r="2"/>
+    <path d="M12 18v.01"/>
+  </svg>
+)
+const IcoChevronDown = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9"/>
+  </svg>
+)
+const IcoQuote = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" opacity="0.15">
+    <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+    <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
+  </svg>
+)
+const IcoX = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+)
 
 /* ─── Floating hero mockup ───────────────────────────────────────────────── */
 function HeroMockup() {
@@ -501,6 +533,127 @@ function PlanMockup() {
   )
 }
 
+function RevisionMockup() {
+  const intervals = [
+    { day: 'D1', label: '24h', done: true },
+    { day: 'D3', label: '3 dias', done: true },
+    { day: 'D7', label: '7 dias', done: false, active: true },
+    { day: 'D14', label: '14 dias', done: false },
+    { day: 'D30', label: '30 dias', done: false },
+  ]
+  const revisions = [
+    { subject: 'Língua Portuguesa', topic: 'Morfologia', color: '#6366f1', status: 'done', day: 'D1' },
+    { subject: 'Raciocínio Lógico', topic: 'Tabelas-verdade', color: '#22c55e', status: 'today', day: 'D3' },
+    { subject: 'Língua Portuguesa', topic: 'Ortografia', color: '#6366f1', status: 'overdue', day: 'D7' },
+    { subject: 'Informática', topic: 'Windows 10', color: '#f59e0b', status: 'upcoming', day: 'D14' },
+  ]
+  return (
+    <div className="rounded-xl overflow-hidden" style={{ background: '#080f1e', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#060b16', fontSize: 10, color: '#94a3b8', fontWeight: 700 }}>
+        REVISÃO ESPAÇADA
+      </div>
+      <div className="p-4 space-y-4">
+        <div>
+          <div className="mb-2" style={{ fontSize: 10, color: '#334155', fontWeight: 600 }}>INTERVALOS DE REFORÇO</div>
+          <div className="flex items-center gap-1.5">
+            {intervals.map((iv, i) => (
+              <div key={iv.day} className="flex items-center gap-1.5">
+                <div className="flex flex-col items-center gap-1">
+                  <div className="rounded-full flex items-center justify-center" style={{
+                    width: 32, height: 32,
+                    background: iv.done ? 'rgba(34,197,94,0.15)' : iv.active ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.04)',
+                    border: `1.5px solid ${iv.done ? 'rgba(34,197,94,0.4)' : iv.active ? 'rgba(124,58,237,0.5)' : 'rgba(255,255,255,0.08)'}`,
+                    boxShadow: iv.active ? '0 0 12px rgba(124,58,237,0.25)' : 'none',
+                  }}>
+                    {iv.done ? <Check /> : <span style={{ fontSize: 9, fontWeight: 700, color: iv.active ? '#a78bfa' : '#334155' }}>{iv.day}</span>}
+                  </div>
+                  <span style={{ fontSize: 8, color: iv.active ? '#a78bfa' : '#334155' }}>{iv.label}</span>
+                </div>
+                {i < intervals.length - 1 && (
+                  <div style={{ width: 20, height: 1, background: iv.done ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.06)', marginBottom: 14 }} />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="mb-2" style={{ fontSize: 10, color: '#334155', fontWeight: 600 }}>PRÓXIMAS REVISÕES</div>
+          {revisions.map((r, i) => (
+            <div key={i} className="flex items-center gap-2 py-2" style={{ borderBottom: i < revisions.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+              <div className="w-1 h-6 rounded-full flex-shrink-0" style={{ background: r.color }} />
+              <div className="flex-1 min-w-0">
+                <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>{r.topic}</div>
+                <div style={{ fontSize: 9, color: '#334155' }}>{r.subject}</div>
+              </div>
+              <span className="rounded-full px-2 py-0.5 flex-shrink-0" style={{
+                fontSize: 9, fontWeight: 600,
+                background: r.status === 'done' ? 'rgba(34,197,94,0.1)' : r.status === 'today' ? 'rgba(124,58,237,0.12)' : r.status === 'overdue' ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.04)',
+                color: r.status === 'done' ? '#22c55e' : r.status === 'today' ? '#a78bfa' : r.status === 'overdue' ? '#ef4444' : '#475569',
+                border: `1px solid ${r.status === 'done' ? 'rgba(34,197,94,0.2)' : r.status === 'today' ? 'rgba(124,58,237,0.2)' : r.status === 'overdue' ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.06)'}`,
+              }}>
+                {r.status === 'done' ? 'Feita' : r.status === 'today' ? 'Hoje' : r.status === 'overdue' ? 'Atrasada' : 'Em 4 dias'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SimuladoMockup() {
+  return (
+    <div className="rounded-xl overflow-hidden" style={{ background: '#080f1e', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#060b16' }}>
+        <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700 }}>SIMULADO</span>
+        <span style={{ fontSize: 10, color: '#a78bfa', fontWeight: 600 }}>Questão 8/20</span>
+      </div>
+      <div className="p-4 space-y-4">
+        <div className="rounded-xl p-3.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-1 h-4 rounded-full" style={{ background: '#6366f1' }} />
+            <span style={{ fontSize: 9, color: '#6366f1', fontWeight: 600 }}>LÍNGUA PORTUGUESA</span>
+          </div>
+          <p style={{ fontSize: 11, color: '#94a3b8', lineHeight: 1.6, marginBottom: 12 }}>
+            Assinale a alternativa em que a concordância verbal está de acordo com a norma-padrão:
+          </p>
+          {[
+            { letter: 'A', text: 'Fazem três anos que não o vejo.', selected: false },
+            { letter: 'B', text: 'Houveram muitos acidentes na estrada.', selected: false },
+            { letter: 'C', text: 'Existem razões para acreditar nisso.', selected: true, correct: true },
+            { letter: 'D', text: 'Haverão de chegar os reforços.', selected: false },
+          ].map(opt => (
+            <div key={opt.letter} className="flex items-center gap-2.5 py-2 px-3 rounded-lg mb-1.5" style={{
+              background: opt.selected ? 'rgba(34,197,94,0.08)' : 'transparent',
+              border: `1px solid ${opt.selected ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.05)'}`,
+            }}>
+              <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{
+                background: opt.selected ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${opt.selected ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.08)'}`,
+              }}>
+                <span style={{ fontSize: 9, fontWeight: 700, color: opt.selected ? '#22c55e' : '#475569' }}>{opt.letter}</span>
+              </div>
+              <span style={{ fontSize: 10, color: opt.selected ? '#86efac' : '#64748b' }}>{opt.text}</span>
+            </div>
+          ))}
+        </div>
+        <div>
+          <div className="mb-2" style={{ fontSize: 10, color: '#334155', fontWeight: 600 }}>APROVEITAMENTO POR DISCIPLINA</div>
+          {[['L. Portuguesa', '#6366f1', 78],['R. Lógico', '#22c55e', 62],['Informática', '#f59e0b', 85]].map(([n,c,p]) => (
+            <div key={n} className="flex items-center gap-2 mb-2">
+              <span className="truncate" style={{ fontSize: 10, color: '#475569', width: 90 }}>{n}</span>
+              <div className="flex-1 rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                <div className="h-1.5 rounded-full" style={{ width: `${p}%`, background: c }} />
+              </div>
+              <span style={{ fontSize: 10, color: p >= 70 ? '#22c55e' : '#eab308', fontWeight: 600, width: 28, textAlign: 'right' }}>{p}%</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const FEATURE_TABS = [
   {
     id: 'edital',
@@ -530,6 +683,20 @@ const FEATURE_TABS = [
     title: 'Planejamento semanal',
     desc: 'Distribua as disciplinas pelos dias da semana, defina metas de horas e acompanhe o cumprimento ao vivo conforme vai estudando.',
     mockup: PlanMockup,
+  },
+  {
+    id: 'revision',
+    Icon: IcoRepeat,
+    title: 'Revisão espaçada',
+    desc: 'Após cada sessão de estudo, o sistema agenda automaticamente revisões nos intervalos ideais: 1, 3, 7, 14 e 30 dias. Você nunca mais esquece o que estudou.',
+    mockup: RevisionMockup,
+  },
+  {
+    id: 'simulado',
+    Icon: IcoFileQuestion,
+    title: 'Simulados e questões',
+    desc: 'Resolva questões por disciplina ou simulados completos. Veja seu aproveitamento por matéria e identifique exatamente onde precisa melhorar.',
+    mockup: SimuladoMockup,
   },
 ]
 
@@ -645,6 +812,62 @@ function PainCard({ Icon, problem, solution, delay }) {
   )
 }
 
+/* ─── FAQ Accordion ─────────────────────────────────────────────────────── */
+const FAQ_ITEMS = [
+  { q: 'É realmente 100% grátis?', a: 'Sim. Todas as funcionalidades estão disponíveis gratuitamente, sem período de teste, sem pegadinha.' },
+  { q: 'Funciona para qualquer concurso?', a: 'Sim. Você cadastra as disciplinas e tópicos do seu edital. Serve para qualquer concurso público — federal, estadual ou municipal.' },
+  { q: 'Posso usar no celular?', a: 'Sim. A plataforma é responsiva e funciona em qualquer navegador, no desktop ou celular.' },
+  { q: 'Meus dados ficam salvos?', a: 'Sim. Tudo é salvo na sua conta. Você pode acessar de qualquer dispositivo e nunca perde seu progresso.' },
+  { q: 'Preciso instalar alguma coisa?', a: 'Não. O aprova.se funciona 100% no navegador. Basta criar sua conta e começar.' },
+  { q: 'Tem sala de estudos ao vivo?', a: 'Sim! Você pode estudar com outros concurseiros em tempo real. Escolha um assento, mostre o que está estudando e use o chat.' },
+]
+
+function FaqAccordion() {
+  const [openIdx, setOpenIdx] = useState(null)
+  return (
+    <div className="space-y-2.5">
+      {FAQ_ITEMS.map((item, i) => {
+        const open = openIdx === i
+        return (
+          <Reveal key={i} delay={i * 60}>
+            <button
+              onClick={() => setOpenIdx(open ? null : i)}
+              className="w-full text-left rounded-xl transition-all"
+              style={{
+                background: open ? 'rgba(124,58,237,0.06)' : 'rgba(255,255,255,0.02)',
+                border: `1px solid ${open ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.05)'}`,
+                padding: '16px 20px',
+              }}
+            >
+              <div className="flex items-center justify-between gap-4">
+                <span style={{ fontSize: '0.9rem', fontWeight: 600, color: open ? '#c4b5fd' : '#94a3b8' }}>{item.q}</span>
+                <span style={{
+                  color: open ? '#a78bfa' : '#334155',
+                  transform: open ? 'rotate(180deg)' : 'rotate(0)',
+                  transition: 'transform 0.3s ease, color 0.3s ease',
+                  flexShrink: 0,
+                }}>
+                  <IcoChevronDown size={16} />
+                </span>
+              </div>
+              <div style={{
+                maxHeight: open ? 120 : 0,
+                opacity: open ? 1 : 0,
+                overflow: 'hidden',
+                transition: 'max-height 0.35s cubic-bezier(.4,0,.2,1), opacity 0.3s ease',
+              }}>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.7, marginTop: 10 }}>
+                  {item.a}
+                </p>
+              </div>
+            </button>
+          </Reveal>
+        )
+      })}
+    </div>
+  )
+}
+
 /* ─── Pricing card ───────────────────────────────────────────────────────── */
 function PricingCard() {
   const ITEMS = [
@@ -721,7 +944,7 @@ export default function Landing() {
               <span className="text-white">aprova</span><span style={{ color: '#7c3aed' }}>.se</span>
             </span>
             <nav className="hidden md:flex items-center gap-6">
-              {[['Funcionalidades','#features'],['Como funciona','#how'],['O que inclui','#pricing']].map(([l, h]) => (
+              {[['Funcionalidades','#features'],['Como funciona','#how'],['O que inclui','#pricing'],['FAQ','#faq']].map(([l, h]) => (
                 <a key={l} href={h} style={{ fontSize: '0.875rem', color: '#475569', textDecoration: 'none', transition: 'color .2s' }}
                   onMouseEnter={e => e.currentTarget.style.color='#94a3b8'}
                   onMouseLeave={e => e.currentTarget.style.color='#475569'}>
@@ -973,6 +1196,112 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* ── Testimonials ── */}
+        <section style={{ background: '#060a12', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '80px 0' }}>
+          <div className="max-w-5xl mx-auto px-6">
+            <Reveal className="text-center mb-14">
+              <p style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '.12em', color: '#7c3aed', textTransform: 'uppercase', marginBottom: 12 }}>Quem usa, aprova</p>
+              <h2 style={{ fontSize: 'clamp(1.75rem,3vw,2.5rem)', fontWeight: 800, color: 'white', margin: 0 }}>
+                Histórias de quem mudou a rotina
+              </h2>
+            </Reveal>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {[
+                { quote: 'Antes eu usava 3 apps diferentes e uma planilha. Agora tá tudo no aprova.se e consigo ver meu progresso real.', name: 'Ana P.', role: 'Aprovada no TRT', color: '#6366f1', initial: 'A' },
+                { quote: 'A sala de estudos ao vivo mudou minha rotina. Estudar sabendo que tem gente junto motiva demais.', name: 'Carlos M.', role: 'Estudando para PF', color: '#22c55e', initial: 'C' },
+                { quote: 'O sistema de revisão espaçada é genial. Nunca mais esqueci matéria que já tinha estudado.', name: 'Beatriz R.', role: 'Aprovada no INSS', color: '#f59e0b', initial: 'B' },
+              ].map((t, i) => (
+                <Reveal key={i} delay={i * 120}>
+                  <div className="rounded-2xl p-6 h-full flex flex-col" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div className="mb-4" style={{ color: t.color }}><IcoQuote size={28} /></div>
+                    <p className="flex-1 mb-5 italic" style={{ fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.7 }}>
+                      "{t.quote}"
+                    </p>
+                    <div className="flex items-center gap-3 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                        style={{ background: `${t.color}20`, border: `1px solid ${t.color}40` }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: t.color }}>{t.initial}</span>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#e2e8f0' }}>{t.name}</div>
+                        <div style={{ fontSize: '0.7rem', color: '#475569' }}>{t.role}</div>
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Before / After ── */}
+        <section style={{ background: '#070b14', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '80px 0' }}>
+          <div className="max-w-5xl mx-auto px-6">
+            <Reveal className="text-center mb-14">
+              <p style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '.12em', color: '#7c3aed', textTransform: 'uppercase', marginBottom: 12 }}>Antes e depois</p>
+              <h2 style={{ fontSize: 'clamp(1.75rem,3vw,2.5rem)', fontWeight: 800, color: 'white', margin: 0 }}>
+                Do improviso ao método
+              </h2>
+            </Reveal>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Reveal delay={0}>
+                <div className="rounded-2xl p-6 h-full" style={{ background: 'rgba(239,68,68,0.03)', border: '1px solid rgba(239,68,68,0.12)' }}>
+                  <div className="flex items-center gap-2 mb-6">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                      <IcoX size={14} />
+                    </div>
+                    <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#f87171' }}>Sem método</span>
+                  </div>
+                  <div className="space-y-3.5">
+                    {[
+                      'Planilha desatualizada e confusa',
+                      'Sem saber o que revisar ou quando',
+                      'Horas de estudo sem registro',
+                      'Estudando sozinho, sem motivação',
+                      'Sem saber se está realmente evoluindo',
+                    ].map(item => (
+                      <div key={item} className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)' }}>
+                          <span style={{ color: '#ef4444', fontSize: 10 }}><IcoX size={10} /></span>
+                        </div>
+                        <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+              <Reveal delay={150}>
+                <div className="rounded-2xl p-6 h-full" style={{ background: 'rgba(124,58,237,0.04)', border: '1px solid rgba(124,58,237,0.18)' }}>
+                  <div className="flex items-center gap-2 mb-6">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)' }}>
+                      <Check color="#22c55e" />
+                    </div>
+                    <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#a78bfa' }}>Com o aprova.se</span>
+                  </div>
+                  <div className="space-y-3.5">
+                    {[
+                      'Edital organizado por tópico com progresso',
+                      'Revisões automáticas no prazo certo',
+                      'Cada minuto registrado por disciplina',
+                      'Sala de estudos ao vivo com outros concurseiros',
+                      'Estatísticas claras e sempre atualizadas',
+                    ].map(item => (
+                      <div key={item} className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}>
+                          <Check />
+                        </div>
+                        <span style={{ fontSize: '0.85rem', color: '#c4b5fd' }}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
         {/* ── How it works ── */}
         <section id="how" style={{ background: '#070b14', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '80px 0' }}>
           <div className="max-w-5xl mx-auto px-6">
@@ -1030,8 +1359,21 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* ── FAQ ── */}
+        <section id="faq" style={{ background: '#070b14', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '80px 0' }}>
+          <div className="max-w-3xl mx-auto px-6">
+            <Reveal className="text-center mb-14">
+              <p style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '.12em', color: '#7c3aed', textTransform: 'uppercase', marginBottom: 12 }}>Perguntas frequentes</p>
+              <h2 style={{ fontSize: 'clamp(1.75rem,3vw,2.5rem)', fontWeight: 800, color: 'white', margin: 0 }}>
+                Tire suas dúvidas
+              </h2>
+            </Reveal>
+            <FaqAccordion />
+          </div>
+        </section>
+
         {/* ── Final CTA ── */}
-        <section className="relative overflow-hidden" style={{ background: '#070b14', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '96px 0' }}>
+        <section className="relative overflow-hidden" style={{ background: '#060a12', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '96px 0' }}>
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full blur-3xl" style={{ background: 'rgba(124,58,237,0.07)' }} />
             <div className="absolute inset-0 opacity-[0.02]"

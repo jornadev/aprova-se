@@ -137,20 +137,29 @@ export default function Sidebar({ mobileOpen = false, onMobileClose = () => {}, 
                   onClick={onMobileClose}
                   title={collapsed ? label : undefined}
                   className={({ isActive }) =>
-                    `flex items-center ${collapsed ? 'justify-center' : 'gap-3'} px-3 py-2.5 rounded-xl text-sm font-medium transition-all group relative`
+                    `flex items-center ${collapsed ? 'justify-center' : 'gap-3'} px-3 py-2.5 rounded-xl text-sm font-medium group relative`
                   }
-                  style={({ isActive }) => isActive ? {
-                    background: 'rgba(124,58,237,0.1)',
-                    boxShadow: collapsed ? 'none' : 'inset 2px 0 0 #7c3aed',
-                    color: '#a78bfa',
-                  } : {
-                    color: 'var(--text-mut)',
-                  }}
+                  style={({ isActive }) => ({
+                    transition: 'background 0.15s, color 0.15s, box-shadow 0.15s',
+                    ...(isActive ? {
+                      background: 'rgba(124,58,237,0.1)',
+                      boxShadow: collapsed ? 'none' : 'inset 2px 0 0 #7c3aed',
+                      color: '#a78bfa',
+                    } : {
+                      color: 'var(--text-mut)',
+                    }),
+                  })}
                   onMouseEnter={e => {
-                    if (!e.currentTarget.dataset.active) e.currentTarget.style.color = 'var(--text-3)'
+                    if (!e.currentTarget.style.boxShadow?.includes('#7c3aed')) {
+                      e.currentTarget.style.color = 'var(--text-3)'
+                      e.currentTarget.style.background = 'rgba(124,58,237,0.04)'
+                    }
                   }}
                   onMouseLeave={e => {
-                    if (!e.currentTarget.dataset.active) e.currentTarget.style.color = 'var(--text-mut)'
+                    if (!e.currentTarget.style.boxShadow?.includes('#7c3aed')) {
+                      e.currentTarget.style.color = 'var(--text-mut)'
+                      e.currentTarget.style.background = 'transparent'
+                    }
                   }}
                 >
                   {({ isActive }) => (

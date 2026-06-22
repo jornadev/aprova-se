@@ -67,12 +67,11 @@ function AppLayout() {
   return (
     <div className="flex min-h-screen" style={{ background: 'var(--bg-page)' }}>
       {/* Mobile overlay */}
-      {mobileNavOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => setMobileNavOpen(false)}
-        />
-      )}
+      <div
+        className={`fixed inset-0 z-30 lg:hidden transition-opacity duration-200 ${mobileNavOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        style={{ background: 'rgba(0,0,0,0.5)' }}
+        onClick={() => setMobileNavOpen(false)}
+      />
 
       {/* Hamburger button — mobile only */}
       <button

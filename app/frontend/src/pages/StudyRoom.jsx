@@ -1019,10 +1019,28 @@ function CharacterTooltip({ occupant, isMine, subjects, onUpdate, onLeave, ancho
         <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div>
             <label style={{ color: '#64748b', fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', display: 'block', marginBottom: 5 }}>DISCIPLINA</label>
-            <select value={selSubject} onChange={e => setSelSubject(e.target.value)} className="rounded-xl px-3.5 py-2.5 text-sm transition-colors" style={{ width: '100%', background: 'var(--bg-elev)', border: '1px solid var(--bdr-md)', color: 'var(--text)' }}>
-              <option value="">Sem matéria</option>
-              {subjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
-            </select>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              <button type="button" onClick={() => setSelSubject('')}
+                style={{ padding: '3px 8px', borderRadius: 20, fontSize: 10, cursor: 'pointer', transition: 'all 0.12s',
+                  background: !selSubject ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.04)',
+                  border: !selSubject ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.08)',
+                  color: !selSubject ? '#a5b4fc' : '#64748b', fontWeight: !selSubject ? 600 : 400 }}>
+                Nenhuma
+              </button>
+              {subjects.map(s => {
+                const active = selSubject === s.name
+                return (
+                  <button key={s.id} type="button" onClick={() => setSelSubject(s.name)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 20, fontSize: 10, cursor: 'pointer', transition: 'all 0.12s',
+                      background: active ? `${s.color}20` : 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${active ? s.color : 'rgba(255,255,255,0.08)'}`,
+                      color: active ? s.color : '#64748b', fontWeight: active ? 600 : 400 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.color, opacity: active ? 1 : 0.4 }} />
+                    {s.name}
+                  </button>
+                )
+              })}
+            </div>
           </div>
           <div>
             <label style={{ color: '#64748b', fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', display: 'block', marginBottom: 5 }}>ATIVIDADE</label>
@@ -1265,16 +1283,28 @@ function SaveSessionModal({ mySeat, subjects, onSave, onDiscard }) {
               DISCIPLINA
               <span style={{ color: '#334155', fontWeight: 400, marginLeft: 5 }}>obrigatório</span>
             </label>
-            <select
-              value={subjectId}
-              onChange={e => setSubjectId(e.target.value)}
-              autoFocus
-              className="rounded-xl transition-colors"
-              style={{ ...fieldBase, color: subjectId ? '#a5b4fc' : '#334155' }}
-            >
-              <option value="">Selecione a disciplina...</option>
-              {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {subjects.map(s => {
+                const active = subjectId === String(s.id)
+                return (
+                  <button key={s.id} type="button"
+                    onClick={() => setSubjectId(String(s.id))}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 7,
+                      padding: '7px 12px', borderRadius: 10, fontSize: 12, cursor: 'pointer',
+                      background: active ? `${s.color}18` : 'rgba(255,255,255,0.03)',
+                      border: `1.5px solid ${active ? s.color : 'rgba(255,255,255,0.08)'}`,
+                      color: active ? s.color : '#64748b',
+                      fontWeight: active ? 600 : 400,
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, opacity: active ? 1 : 0.45, flexShrink: 0 }} />
+                    {s.name}
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           {/* O que estudou */}
@@ -1414,10 +1444,28 @@ function SitModal({ open, subjects, onConfirm, onClose }) {
             <label style={{color:'#64748b',fontSize:11,fontWeight:700,letterSpacing:'0.06em',display:'block',marginBottom:7}}>
               DISCIPLINA <span style={{color:'#334155',fontWeight:400}}>opcional</span>
             </label>
-            <select value={sel} onChange={e=>setSel(e.target.value)} autoFocus style={iStyle}>
-              <option value="">Sem matéria específica</option>
-              {subjects.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
+            <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+              <button type="button" onClick={()=>setSel('')}
+                style={{padding:'6px 11px',borderRadius:10,fontSize:12,cursor:'pointer',transition:'all 0.15s',
+                  background:!sel?'rgba(99,102,241,0.12)':'rgba(255,255,255,0.03)',
+                  border:!sel?'1.5px solid rgba(99,102,241,0.35)':'1.5px solid rgba(255,255,255,0.08)',
+                  color:!sel?'#a5b4fc':'#475569',fontWeight:!sel?600:400}}>
+                Nenhuma
+              </button>
+              {subjects.map(s=>{
+                const active=sel===String(s.id)
+                return (
+                  <button key={s.id} type="button" onClick={()=>setSel(String(s.id))}
+                    style={{display:'flex',alignItems:'center',gap:6,padding:'6px 11px',borderRadius:10,fontSize:12,cursor:'pointer',transition:'all 0.15s',
+                      background:active?`${s.color}18`:'rgba(255,255,255,0.03)',
+                      border:`1.5px solid ${active?s.color:'rgba(255,255,255,0.08)'}`,
+                      color:active?s.color:'#64748b',fontWeight:active?600:400}}>
+                    <span style={{width:8,height:8,borderRadius:'50%',background:s.color,opacity:active?1:0.45,flexShrink:0}}/>
+                    {s.name}
+                  </button>
+                )
+              })}
+            </div>
           </div>
           <div>
             <label style={{color:'#64748b',fontSize:11,fontWeight:700,letterSpacing:'0.06em',display:'block',marginBottom:8}}>

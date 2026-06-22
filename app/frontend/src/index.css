@@ -72,11 +72,32 @@ html.light {
     @apply text-slate-100 font-sans;
     color: var(--text);
   }
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg-page); }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(124,58,237,0.35) transparent;
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: var(--text-mut);
+    background: rgba(124,58,237,0.3);
     border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(124,58,237,0.5);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  /* Page content fade-in */
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  main > * {
+    animation: page-in 0.25s ease both;
   }
 
   /* ── Custom Select ─────────────────────────────────────────── */
@@ -206,3 +227,20 @@ html.light input[type="date"]::-webkit-calendar-picker-indicator {
 /* Violet active nav */
 html.light .text-violet-300 { color: #7c3aed !important; }
 html.light [style*="boxShadow: 'inset 2px 0 0 #7c3aed'"] { box-shadow: inset 2px 0 0 #7c3aed; }
+
+/* Light-mode scrollbar */
+html.light * {
+  scrollbar-color: rgba(124,58,237,0.25) transparent;
+}
+html.light ::-webkit-scrollbar-thumb {
+  background: rgba(124,58,237,0.2);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(124,58,237,0.35);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
